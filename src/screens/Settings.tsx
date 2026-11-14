@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useStore } from '../state/store';
 import { useUI } from '../App';
 import { Badge, Toggle } from '../components/ui';
@@ -8,6 +9,7 @@ export default function Settings() {
   const { state, dispatch, journey, isDemo } = useStore();
   const ui = useUI();
   const p = journey.profile;
+  const [confirming, setConfirming] = useState(false);
 
   const exportData = () => {
     try {
@@ -71,17 +73,28 @@ export default function Settings() {
           <button className="btn btn--ghost btn--sm" onClick={exportData}>
             Export my data
           </button>
-          <button
-            className="btn btn--ghost btn--sm btn--danger"
-            onClick={() => {
-              if (confirm('Delete all HabitPet data on this device? Your pet will start over.')) {
-                dispatch({ type: 'reset' });
-                ui.openOnboarding();
-              }
-            }}
-          >
-            Delete all data
-          </button>
+          {!confirming ? (
+            <button className="btn btn--ghost btn--sm btn--danger" onClick={() => setConfirming(true)}>
+              Delete all data
+            </button>
+          ) : (
+            <>
+              <span className="small">Delete everything on this device?</span>
+              <button
+                className="btn btn--sm btn--danger"
+                onClick={() => {
+                  setConfirming(false);
+                  dispatch({ type: 'reset' });
+                  ui.openOnboarding();
+                }}
+              >
+                Yes, delete
+              </button>
+              <button className="btn btn--ghost btn--sm" onClick={() => setConfirming(false)}>
+                Keep
+              </button>
+            </>
+          )}
         </div>
       </div>
 
