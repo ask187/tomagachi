@@ -5,8 +5,28 @@ import { useUI } from '../App';
 import { captionFor } from './captions';
 import type { Snapshot } from '../engine/types';
 
+export const MOOD_TAG = {
+  thriving: { icon: '🌟', label: 'Thriving' },
+  stable: { icon: '🙂', label: 'Stable' },
+  struggling: { icon: '😮‍💨', label: 'Struggling' },
+  neglected: { icon: '🥀', label: 'Neglected' },
+  recovery: { icon: '🩹', label: 'Recovery needed' },
+};
+
 /** Pet + its room, wired to the current derived snapshot. */
-export default function PetScene({ snapOverride, reaction, compact, showCaption = true }: { snapOverride?: Snapshot; reaction?: Reaction; compact?: boolean; showCaption?: boolean }) {
+export default function PetScene({
+  snapOverride,
+  reaction,
+  compact,
+  showCaption = true,
+  showMood = true,
+}: {
+  snapOverride?: Snapshot;
+  reaction?: Reaction;
+  compact?: boolean;
+  showCaption?: boolean;
+  showMood?: boolean;
+}) {
   const { journey, snap: cur, state } = useStore();
   const ui = useUI();
   const snap = snapOverride ?? cur;
@@ -31,6 +51,11 @@ export default function PetScene({ snapOverride, reaction, compact, showCaption 
           still={state.prefs.reducedMotion}
         />
       </div>
+      {showMood && (
+        <div className={`scene__mood scene__mood--${snap.conditionState}`} key={snap.conditionState}>
+          {MOOD_TAG[snap.conditionState].icon} {MOOD_TAG[snap.conditionState].label} · {Math.round(snap.condition)}
+        </div>
+      )}
       {showCaption && state.prefs.captions && <div className="scene__caption">{captionFor(snap, journey.profile.petName)}</div>}
     </div>
   );

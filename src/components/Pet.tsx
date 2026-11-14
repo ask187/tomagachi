@@ -51,7 +51,15 @@ export default function Pet({
   const gold = '#ffcf3f';
   const low = condition === 'neglected' || condition === 'recovery';
   const lying = condition === 'recovery' && reaction !== 'rejoice' && reaction !== 'refreshed' && reaction !== 'celebrate';
-  const scale = [0.7, 0.84, 0.97, 1.05][stage - 1] ?? 1;
+  const happyReact = reaction === 'rejoice' || reaction === 'refreshed' || reaction === 'celebrate';
+  // smaller and more slumped the worse it gets — readable at a glance on a video call
+  const moodScale = happyReact ? 1 : { thriving: 1, stable: 0.98, struggling: 0.94, neglected: 0.9, recovery: 1 }[condition];
+  const scale = ([0.7, 0.84, 0.97, 1.05][stage - 1] ?? 1) * moodScale;
+  const posture = lying
+    ? 'scale(1.18, 0.66)'
+    : happyReact
+      ? undefined
+      : { thriving: undefined, stable: undefined, struggling: 'scale(1.03, 0.95)', neglected: 'scale(1.08, 0.86)', recovery: undefined }[condition];
   const earTilt = condition === 'thriving' ? 0 : condition === 'stable' ? 4 : condition === 'struggling' ? 14 : 28;
   const tipColor = stage >= 4 ? gold : p.dark;
 
@@ -82,7 +90,7 @@ export default function Pet({
           <g transform={`translate(100 185) scale(${scale}) translate(-100 -185)`}>
             <g
               className="pet-body-wrap"
-              style={{ transformOrigin: '100px 185px', transform: lying ? 'scale(1.18, 0.66)' : undefined }}
+              style={{ transformOrigin: '100px 185px', transform: posture }}
             >
               {stage >= 4 && <circle cx="100" cy="115" r="95" fill={`url(#aura-${color})`} className="pet-aura" />}
 
@@ -181,6 +189,14 @@ export default function Pet({
               )}
 
               <Face condition={condition} reaction={reaction} p={p} shades={face === 'shades'} lying={lying} />
+              {face === 'shades' && !lying && condition !== 'thriving' && condition !== 'stable' && !happyReact && (
+                // too tired to look cool: sunglasses pushed up onto the forehead so the eyes show
+                <g transform="translate(100 66) scale(0.78) rotate(-8) translate(-100 -106)">
+                  <path d="M66 100 H134" stroke="#111" strokeWidth="3" />
+                  <rect x="66" y="98" width="30" height="16" rx="7" fill="#111" />
+                  <rect x="104" y="98" width="30" height="16" rx="7" fill="#111" />
+                </g>
+              )}
 
               {/* accessories */}
               {neck === 'scarf' && (
@@ -211,7 +227,7 @@ export default function Pet({
                 </g>
               )}
               {head === 'crown' && (
-                <g className="crown">
+                <g className="crown" transform={low && !happyReact ? 'rotate(16 100 44) translate(10 6)' : undefined}>
                   <path d="M72 62 L68 32 L86 46 L100 24 L114 46 L132 32 L128 62 Z" fill={gold} stroke="#c99400" strokeWidth="2.5" strokeLinejoin="round" />
                   <circle cx="100" cy="50" r="4.5" fill="#ff5c7a" />
                   <circle cx="84" cy="54" r="3" fill="#4ad7ff" />
@@ -248,6 +264,22 @@ export default function Pet({
             <path d="M176 120 l3 7 l7 3 l-7 3 l-3 7 l-3 -7 l-7 -3 l7 -3 Z" />
             <path d="M22 140 l3 7 l7 3 l-7 3 l-3 7 l-3 -7 l-7 -3 l7 -3 Z" />
           </g>
+        )}
+        {low && !happyReact && (
+          <g className="fx-stink" fill="none" stroke="#9aa36a" strokeWidth="3" strokeLinecap="round" opacity="0.8">
+            <path d="M58 70 q-8 -10 0 -20 q8 -10 0 -20" />
+            <path d="M142 66 q-8 -10 0 -20 q8 -10 0 -20" />
+          </g>
+        )}
+        {low && !happyReact && (
+          <g className="fx-flies" fill="#222">
+            <circle cx="46" cy="96" r="2.6" />
+            <circle cx="158" cy="80" r="2.6" />
+            <circle cx="150" cy="100" r="2.2" />
+          </g>
+        )}
+        {condition === 'struggling' && !happyReact && (
+          <path d="M150 92 Q156 104 150 110 Q144 104 150 92 Z" fill="#8fd3ff" stroke="#1b1530" strokeWidth="2" className="sweat" />
         )}
         {condition === 'recovery' && !reaction && (
           <g className="fx-zzz" fill="#cfd6ff" fontWeight="900">
@@ -382,7 +414,7 @@ function Face({
   return (
     <g className="face">
       {eyes}
-      {shades && !lying && (
+      {shades && !lying && (mood === 'thriving' || mood === 'stable') && (
         <g>
           <path d="M66 100 H134" stroke="#111" strokeWidth="3" />
           <rect x="66" y="98" width="30" height="20" rx="8" fill="#111" />

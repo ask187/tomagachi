@@ -5,12 +5,17 @@ import { SCENARIOS, STORYBOARD } from '../engine/scenarios';
 import { Badge } from '../components/ui';
 import { WEEKDAYS } from '../engine/config';
 import { fmt } from '../engine/insights';
+import PetScene, { MOOD_TAG } from '../components/PetScene';
+import Pet from '../components/Pet';
+import type { Condition } from '../engine/types';
+
+const ORDER: Condition[] = ['thriving', 'stable', 'struggling', 'neglected', 'recovery'];
 
 const SCEN = SCENARIOS.map((f) => f());
 
 /** Demo Time Machine (spec §14) — hackathon-only control surface. */
 export default function TimeMachine({ onScene, presenter }: { onScene: (i: number) => void; presenter: number | null }) {
-  const { state, dispatch, journey, snap, isDemo, day } = useStore();
+  const { state, dispatch, journey, snap, snaps, isDemo, day } = useStore();
   const ui = useUI();
   const [playing, setPlaying] = useState(false);
   const sc = SCEN.find((s) => s.id === state.demo.scenarioId)!;
@@ -26,6 +31,12 @@ export default function TimeMachine({ onScene, presenter }: { onScene: (i: numbe
     return () => clearTimeout(id);
   }, [playing, state.viewDay, max, dispatch]);
 
+  // the first day the journey reaches each mood, so the strip reads in story order
+  const moodDays = ORDER.map((c) => {
+    const first = snaps.find((x) => x.conditionState === c);
+    return first ? { c, snap: first } : null;
+  }).filter((x): x is { c: Condition; snap: (typeof snaps)[number] } => !!x);
+
   const jump = (d: number, screen?: Parameters<typeof ui.go>[0]) => {
     if (!isDemo) dispatch({ type: 'setMode', mode: 'demo' });
     dispatch({ type: 'setViewDay', day: d });
@@ -39,6 +50,33 @@ export default function TimeMachine({ onScene, presenter }: { onScene: (i: numbe
         <Badge tone="demo">hackathon only</Badge>
       </div>
       <p className="tiny muted">Simulates weeks of use in seconds. Everything injected here is labelled demo data.</p>
+
+      <div className="tm__preview">
+        <PetScene compact showCaption={false} />
+        <div className="tm__meter">
+          <div className="tm__meter-bar">
+            <i style={{ width: `${snap.condition}%` }} className={`tm__fill--${snap.conditionState}`} />
+          </div>
+          <small>
+            Day {day + 1} · condition {Math.round(snap.condition)} · score {snap.score ?? '—'}
+          </small>
+        </div>
+      </div>
+
+      {isDemo && moodDays.length > 1 && (
+        <div className="tm__block">
+          <div className="label">Jump to a mood</div>
+          <div className="moods">
+            {moodDays.map(({ c, snap: s }) => (
+              <button key={c} className={`mood ${snap.conditionState === c ? 'on' : ''}`} onClick={() => jump(s.day, 'home')} title={`Day ${s.day + 1}`}>
+                <Pet color={journey.profile.petColor} stage={s.stage} condition={c} branch={s.branch} still size={48} />
+                <small>{MOOD_TAG[c].label}</small>
+                <em>Day {s.day + 1}</em>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="segmented">
         <button className={isDemo ? 'on' : ''} onClick={() => dispatch({ type: 'setMode', mode: 'demo' })}>
