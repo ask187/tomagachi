@@ -161,8 +161,12 @@ function reducer(s: AppState, a: Action): AppState {
     case 'setMode':
       if (a.mode === 'live' && !s.live) return s;
       return { ...s, mode: a.mode };
-    case 'loadScenario':
-      return { ...s, mode: 'demo', demo: scenarioJourney(a.id), viewDay: 0 };
+    case 'loadScenario': {
+      // a fresh copy of the scripted journey; keep the companion chosen for the demo
+      const fresh = scenarioJourney(a.id);
+      const { species, petColor, petName } = s.demo.profile;
+      return { ...s, mode: 'demo', demo: { ...fresh, profile: { ...fresh.profile, species, petColor, petName } }, viewDay: 0 };
+    }
     case 'setViewDay':
       return { ...s, viewDay: Math.max(0, Math.min(a.day, s.demo.days.length - 1)) };
     case 'log':

@@ -79,7 +79,7 @@ export default function App() {
   }, []);
 
   // ---- automatic pet reactions + evolution reveal when the derived state changes ----
-  const journeyKey = isDemo ? `demo:${state.demo.scenarioId}` : 'live';
+  const journeyKey = `${isDemo ? `demo:${state.demo.scenarioId}` : 'live'}:${journey.profile.species ?? 'mochi'}`;
   const look = usePetLook();
   const prev = useRef({ key: journeyKey, day, stage: look.form, cond: snap.condition, score: snap.score ?? 0, missions: snap.missionsDone });
   useEffect(() => {
@@ -144,7 +144,8 @@ export default function App() {
   const runScene = useCallback(
     (i: number) => {
       const sc = STORYBOARD[i];
-      if (state.demo.scenarioId !== 'hero' || !isDemo) dispatch({ type: 'loadScenario', id: 'hero' });
+      // scene 1 always starts from an untouched journey; later scenes keep what was done live (e.g. a mission)
+      if (i === 0 || state.demo.scenarioId !== 'hero' || !isDemo) dispatch({ type: 'loadScenario', id: 'hero' });
       setTimeout(() => {
         dispatch({ type: 'setViewDay', day: sc.day });
         go(sc.screen as Screen);
@@ -174,7 +175,7 @@ export default function App() {
     home: <Home />,
     routines: <Routines />,
     shield: <Shield />,
-    missions: <Missions />,
+    missions: <Missions key={`${journeyKey}:${day}`} />,
     pet: <Wardrobe />,
     insights: <Insights />,
     settings: <Settings />,
@@ -265,7 +266,7 @@ export default function App() {
           <button className="panel__close icon-btn" onClick={() => setPanelOpen(false)} aria-label="Close demo panel">
             ✕
           </button>
-          <TimeMachine onScene={runScene} presenter={presenter} />
+          <TimeMachine onScene={runScene} presenter={presenter} onLeave={() => setPanelOpen(false)} />
         </aside>
         <button className="panel-fab" onClick={() => setPanelOpen(true)}>
           ⏱ Time Machine
