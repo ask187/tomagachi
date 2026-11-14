@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useStore } from '../state/store';
 import Pet, { PET_COLORS, petSwatch } from '../components/Pet';
-import { ACCOUNTABILITY, ALL_DAYS, ENTERTAINMENT_APPS, ESSENTIAL_APPS, HABIT_TEMPLATES, WEEKDAYS, habitFromTemplate } from '../engine/config';
+import { ACCOUNTABILITY, ALL_DAYS, HABIT_TEMPLATES, WEEKDAYS, habitFromTemplate } from '../engine/config';
+import AppPicker from '../components/AppPicker';
+import type { ShieldApp } from '../engine/apps';
 import { Badge, Confetti, Segmented, Toggle } from '../components/ui';
 import { usePedometer } from '../components/usePedometer';
 import type { Accountability, HabitCategory, PetColor } from '../engine/types';
@@ -27,7 +29,8 @@ export default function Onboarding({ onDone, onSkip, canCancel }: { onDone: () =
   const [targets, setTargets] = useState<Partial<Record<HabitCategory, number>>>({});
   const [restDays, setRestDays] = useState<number[]>([0]);
   const [shieldOn, setShieldOn] = useState(true);
-  const [apps, setApps] = useState<string[]>(['shorts', 'feed']);
+  const [apps, setApps] = useState<string[]>(['tiktok', 'instagram']);
+  const [customApps, setCustomApps] = useState<ShieldApp[]>([]);
   const [acc, setAcc] = useState<Accountability>('balanced');
   const ped = usePedometer();
 
@@ -44,7 +47,7 @@ export default function Onboarding({ onDone, onSkip, canCancel }: { onDone: () =
     });
     dispatch({
       type: 'finishOnboarding',
-      profile: { petName: name.trim() || 'Mochi', petColor: color, accountability: acc, shield: { enabled: shieldOn, apps }, startWeekday: new Date().getDay(), restDays },
+      profile: { petName: name.trim() || 'Mochi', petColor: color, accountability: acc, shield: { enabled: shieldOn, apps, custom: customApps }, startWeekday: new Date().getDay(), restDays },
       habits,
     });
     onDone();
@@ -220,24 +223,18 @@ export default function Onboarding({ onDone, onSkip, canCancel }: { onDone: () =
             {shieldOn && (
               <>
                 <div className="label">Which apps distract you?</div>
-                <div className="chips">
-                  {ENTERTAINMENT_APPS.map((a) => (
-                    <button key={a.id} className={`chip ${apps.includes(a.id) ? 'on' : ''}`} onClick={() => setApps((p) => (p.includes(a.id) ? p.filter((x) => x !== a.id) : [...p, a.id]))}>
-                      {a.icon} {a.name}
-                    </button>
-                  ))}
-                </div>
-                <div className="label">Never shielded</div>
-                <div className="chips">
-                  {ESSENTIAL_APPS.map((a) => (
-                    <span key={a.id} className="chip chip--static">
-                      {a.icon} {a.name}
-                    </span>
-                  ))}
-                </div>
+                <AppPicker
+                  selected={apps}
+                  custom={customApps}
+                  onChange={(sel, c) => {
+                    setApps(sel);
+                    setCustomApps(c);
+                  }}
+                />
                 <div className="label">Accountability</div>
                 <Segmented<Accountability> value={acc} onChange={setAcc} options={(['gentle', 'balanced', 'strict'] as const).map((k) => ({ value: k, label: ACCOUNTABILITY[k].label }))} />
                 <p className="tiny muted">{ACCOUNTABILITY[acc].desc} An override is always one tap (plus a short reflection) away.</p>
+                <p className="tiny muted">🤝 After setup you can add a recovery contact on the Shield screen. They can approve emergency access to shielded apps.</p>
                 <p className="tiny">
                   <Badge tone="sim">Simulated in this demo</Badge> Real blocking requires OS Screen Time entitlements.
                 </p>

@@ -243,6 +243,7 @@ ul {
   border: 10px solid #18122e;
   box-shadow: 0 30px 80px rgba(40, 20, 100, 0.35);
   overflow: hidden;
+  overflow: clip; /* stops focus/scrollIntoView from scrolling the frame itself */
   display: flex;
   flex-direction: column;
 }
@@ -2718,4 +2719,321 @@ h2 {
 }
 .panel-fab {
   border: 2.5px solid #000 !important;
+}
+
+/* ---------- app picker ---------- */
+textarea {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1.5px solid var(--soft-border);
+  border-radius: 12px;
+  padding: 9px 12px;
+  width: 100%;
+  resize: vertical;
+}
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.picker__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px 4px;
+}
+.picker__app {
+  position: relative;
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  padding: 6px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.picker__app small {
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.picker__app em {
+  font-style: normal;
+  font-size: 0.56rem;
+  font-weight: 900;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.picker__app.on {
+  border-color: var(--line);
+  background: color-mix(in srgb, var(--lime) 30%, var(--surface));
+}
+.picker__app i {
+  position: absolute;
+  top: 0;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--lime);
+  border: 2px solid var(--line);
+  font-style: normal;
+  font-size: 0.7rem;
+  font-weight: 900;
+  display: grid;
+  place-items: center;
+  color: var(--ink);
+}
+.picker__icon,
+.shield-app__icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  border: 2px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+}
+.shield-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 4px;
+}
+.shield-app {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 4px 3px 3px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  background: var(--surface-2);
+}
+.shield-app__icon {
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+  border-radius: 50%;
+}
+.shield-app__x {
+  border: none;
+  background: var(--track);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+.mockphone__note {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ---------- recovery contact & emergency ---------- */
+.contact {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 6px 0 8px;
+}
+.contact div {
+  display: flex;
+  flex-direction: column;
+}
+.contact__avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: #fff;
+  border: 2.5px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+}
+.msg {
+  white-space: pre-wrap;
+  font: inherit;
+  font-size: 0.78rem;
+  background: var(--surface-2);
+  border: 2px dashed var(--soft-border);
+  border-radius: 12px;
+  padding: 10px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.history {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.history li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: start;
+  border-bottom: 1.5px solid var(--soft-border);
+  padding-bottom: 6px;
+}
+.history li div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.history li small {
+  overflow-wrap: anywhere;
+}
+.reasons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.reason {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 8px;
+  font-size: 0.8rem;
+}
+.reason span {
+  font-size: 18px;
+}
+.reason.on {
+  background: var(--lime);
+  color: var(--ink);
+  box-shadow: 0 2px 0 var(--line);
+}
+.essentials-note {
+  background: color-mix(in srgb, var(--blue) 16%, var(--surface));
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 8px 10px;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.req-status {
+  border: 2.5px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  background: #ffe08a;
+  color: var(--ink);
+}
+.req-status--ok {
+  background: var(--lime);
+}
+.req-status--no {
+  background: #ffd0da;
+}
+.error {
+  color: var(--bad);
+  font-weight: 800;
+}
+.demo-box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  border: 2px dashed var(--soft-border);
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+.contact-view {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  background: rgba(10, 8, 20, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fade 0.2s;
+}
+.contact-view__card {
+  width: 100%;
+  background: #1b1530;
+  color: #fff;
+  border: 2.5px solid #000;
+  border-radius: 24px;
+  box-shadow: 6px 8px 0 #000;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.contact-view__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.contact-view__head small {
+  color: var(--lime);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.68rem;
+}
+.contact-view .muted {
+  color: #b9b2d6;
+}
+.contact-view h3 {
+  margin: 0;
+}
+.contact-view__req {
+  background: #2a2350;
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.contact-view__req p {
+  margin: 0;
+  font-style: italic;
+}
+.contact-view .chip {
+  background: #2a2350;
+  color: #fff;
+  border-color: #000;
+}
+.contact-view .chip.on {
+  background: var(--lime);
+  color: var(--ink);
+}
+.contact-view .btn--ghost {
+  background: #fff;
+  color: var(--ink);
+}
+.contact-view label {
+  color: #fff;
+}
+.code {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  letter-spacing: 0.18em;
+  background: var(--lime);
+  color: var(--ink);
+  border: 2.5px solid #000;
+  border-radius: 14px;
+  padding: 6px 14px;
+  display: inline-block;
+  margin: 4px 0;
+  font-variant-numeric: tabular-nums;
 }

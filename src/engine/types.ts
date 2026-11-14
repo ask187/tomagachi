@@ -1,3 +1,6 @@
+import type { ShieldApp } from './apps';
+import type { RecoveryContact } from './emergency';
+
 // Core data model for HabitPet (spec §19.3).
 // Everything the game shows is *derived* from these records by the deterministic
 // rules engine in `engine.ts` — AI/insights only ever recommend.
@@ -75,7 +78,9 @@ export type Accountability = 'gentle' | 'balanced' | 'strict';
 
 export interface ShieldSettings {
   enabled: boolean;
-  apps: string[]; // user-selected entertainment app ids
+  apps: string[]; // ids of the apps the user chose to shield
+  /** apps the user added by name, or picked from the phone in a native build */
+  custom?: ShieldApp[];
 }
 
 export type PetColor = 'violet' | 'mint' | 'peach' | 'sky';
@@ -88,6 +93,8 @@ export interface Profile {
   /** weekday of day 0 */
   startWeekday: number;
   restDays: number[]; // weekdays that are planned rest
+  /** trusted person who can approve emergency access to shielded apps */
+  recovery?: RecoveryContact;
 }
 
 export type Condition = 'thriving' | 'stable' | 'struggling' | 'neglected' | 'recovery';

@@ -42,8 +42,22 @@ To try it as a real user, choose **Hatch my pet**. Onboarding walks through the 
 | Step counting from the phone's motion sensor (DeviceMotion) | ✅ Real, on-device (phone + HTTPS) |
 | Timer-verified habits & missions | ✅ Real (with a labelled "demo speed" option) |
 | Insight Engine (pattern detection, difficulty tuning, risk hints, mission ranking) | ✅ Real, runs on-device over your history. Only recommends; you approve every change |
-| Blocking other apps | 🟥 **Simulated**. Browsers can't do this; a native build would need iOS Screen Time / Android entitlements |
+| Blocking other apps | 🟥 **Simulated** in the browser. The bridge for a native iOS/Android shell is in place (`src/platform/shieldBridge.ts`); the native side is documented but not built |
+| Recovery contact & emergency codes | ✅ Real logic (validation, limits, expiry, codes tied to each request). 🟨 The contact's approval screen runs on the same device in the demo |
 | "Simulate +1.5k steps", "Simulate sync failure", time jumps, Time Machine scenarios, friends | 🟨 Demo data, labelled in the UI |
+
+## Distraction Shield: your real apps + emergency access
+
+- **Pick your apps.** Shield → *Edit apps*. Choose from 26 common apps (Instagram, TikTok, YouTube, Netflix…), search, or add any app by name. Anything that looks essential, like banking, maps, messaging, health or work, is refused. Calls, SOS, messages, maps and health are never shielded.
+- **Apps from the phone itself.** Picking from the installed apps needs the native shell (iOS Screen Time / Android usage access). The web app already talks to it through `src/platform/shieldBridge.ts` and switches from SIMULATED to ON-DEVICE when it's present. See [docs/NATIVE_SHIELD.md](docs/NATIVE_SHIELD.md).
+- **Recovery contact.** Add someone you trust (name, phone/email, relationship) and send them an invite.
+- **Emergency access.** From a locked app, tap *Emergency? Ask Sam*:
+  1. Pick a reason (medical, family, safety/travel, work/school, other), explain it in at least 15 characters, and choose 15 min to 2 h.
+  2. The contact reads the request and approves (they can approve less time) or declines with a note.
+  3. If they approve, they give a one-time 6-digit code. The code only works for that request and that duration, and it unlocks the apps.
+  4. You can send at most 3 requests in 24 hours. Pending requests expire after 30 minutes. Every request and decision is kept in a history list.
+  5. If the contact can't be reached, the regular override still works, after a longer reflection wait. You're never locked out for good.
+- In the browser demo the contact's side ("Open Sam's view") runs on the same device and is labelled **demo**. In production it would arrive by push/SMS (see the doc).
 
 ## How it maps to the spec
 
@@ -64,6 +78,7 @@ All numbers (thresholds, XP, credits) are illustrative and kept in one place, `s
 
 ```
 src/engine/      pure TypeScript: types, config, rules engine, insights, demo scenarios (+ tests)
+src/platform/    native shield bridge (iOS Screen Time / Android), simulated fallback
 src/state/       reducer store with localStorage persistence
 src/components/  Pet (SVG character), Room (SVG environment), UI kit, timers, step sensor
 src/screens/     Onboarding, Home, Routines, Shield, Missions, Evolve, Insights, Friends, Settings, Time Machine

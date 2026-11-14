@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { emptyDay, simulate } from '../engine/engine';
 import { SCENARIOS } from '../engine/scenarios';
 import type { Suggestion } from '../engine/insights';
+import type { EmergencyRequest } from '../engine/emergency';
 import type { DayLog, Entry, EntrySource, Habit, Profile, Snapshot } from '../engine/types';
 
 export interface Equipped {
@@ -33,7 +34,7 @@ export interface Prefs {
 export type Mode = 'live' | 'demo';
 
 export interface AppState {
-  version: 1;
+  version: 2;
   onboarded: boolean;
   mode: Mode;
   live: Journey | null;
@@ -42,6 +43,8 @@ export interface AppState {
   prefs: Prefs;
   memory: MemoryItem[]; // AI memory: user-approved goals & preferences (reviewable, deletable)
   dismissed: string[];
+  /** emergency-access requests to the recovery contact (kept for review/history) */
+  emergency: EmergencyRequest[];
 }
 
 const KEY = 'habitpet:v1';
@@ -60,7 +63,7 @@ function scenarioJourney(id: string): Journey & { scenarioId: string } {
 
 function initial(): AppState {
   return {
-    version: 1,
+    version: 2,
     onboarded: false,
     mode: 'demo',
     live: null,
@@ -73,6 +76,7 @@ function initial(): AppState {
     },
     memory: [],
     dismissed: [],
+    emergency: [],
   };
 }
 
@@ -81,7 +85,13 @@ function load(): AppState {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const s = JSON.parse(raw) as AppState;
-      if (s.version === 1) return { ...initial(), ...s };
+      if (s.version === 2) return { ...initial(), ...s };
+      if ((s.version as number) === 1) {
+        // v1 used fictional app names; map them to real ones and refresh the demo journey
+        const map: Record<string, string> = { shorts: 'youtube', feed: 'instagram', stream: 'netflix', games: 'candycrush', chat: 'x', news: 'reddit' };
+        const live = s.live && { ...s.live, profile: { ...s.live.profile, shield: { ...s.live.profile.shield, apps: s.live.profile.shield.apps.map((a) => map[a] ?? a) } } };
+        return { ...initial(), ...s, version: 2, live, demo: scenarioJourney(s.demo?.scenarioId ?? 'hero'), emergency: [] };
+      }
     }
   } catch {
     /* storage unavailable — fall back to a fresh state */
@@ -110,6 +120,8 @@ export type Action =
   | { type: 'dismissInsight'; id: string }
   | { type: 'forget'; id: string }
   | { type: 'prefs'; patch: Partial<Prefs> }
+  | { type: 'emergencyCreate'; request: EmergencyRequest }
+  | { type: 'emergencyUpdate'; id: string; patch: Partial<EmergencyRequest> }
   | { type: 'reset' };
 
 function curDay(s: AppState): number {
@@ -226,6 +238,10 @@ function reducer(s: AppState, a: Action): AppState {
       return { ...s, memory: s.memory.filter((m) => m.id !== a.id) };
     case 'prefs':
       return { ...s, prefs: { ...s.prefs, ...a.patch } };
+    case 'emergencyCreate':
+      return { ...s, emergency: [a.request, ...s.emergency].slice(0, 50) };
+    case 'emergencyUpdate':
+      return { ...s, emergency: s.emergency.map((r) => (r.id === a.id ? { ...r, ...a.patch } : r)) };
     case 'reset':
       try {
         localStorage.removeItem(KEY);

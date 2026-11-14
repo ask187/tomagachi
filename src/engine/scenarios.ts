@@ -37,7 +37,9 @@ const baseProfile = (over: Partial<Profile> = {}): Profile => ({
   petName: 'Mochi',
   petColor: 'violet',
   accountability: 'balanced',
-  shield: { enabled: true, apps: ['shorts', 'feed'] },
+  shield: { enabled: true, apps: ['tiktok', 'instagram', 'youtube'] },
+  // sample recovery contact so the emergency-access flow works in the demo
+  recovery: { name: 'Sam', reach: '+1 555 0142', relation: 'Sister', status: 'active', inviteCode: 'DEMO42', key: 'DEMOPAIRINGKEY01', since: 0 },
   startWeekday: 1, // day 0 = Monday
   restDays: [0], // Sundays are planned rest days
   ...over,

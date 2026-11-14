@@ -118,25 +118,6 @@ export function habitFromTemplate(t: HabitTemplate, overrides: Partial<Habit> = 
   };
 }
 
-/** Fictional entertainment apps — the shield never touches essential apps. */
-export const ENTERTAINMENT_APPS = [
-  { id: 'shorts', name: 'LoopTube', icon: '▶️', color: '#ff5c7a' },
-  { id: 'feed', name: 'Scrollr', icon: '📸', color: '#c86bff' },
-  { id: 'stream', name: 'BingeBox', icon: '🎬', color: '#ff9f43' },
-  { id: 'games', name: 'TapQuest', icon: '🎮', color: '#3ecf8e' },
-  { id: 'chat', name: 'Chirper', icon: '🐦', color: '#4aa8ff' },
-  { id: 'news', name: 'HotTakes', icon: '🔥', color: '#ffcc33' },
-];
-
-export const ESSENTIAL_APPS = [
-  { id: 'phone', name: 'Phone', icon: '📞' },
-  { id: 'messages', name: 'Messages', icon: '💬' },
-  { id: 'maps', name: 'Maps', icon: '🗺️' },
-  { id: 'health', name: 'Health', icon: '❤️' },
-  { id: 'emergency', name: 'SOS', icon: '🆘' },
-  { id: 'work', name: 'Work', icon: '💼' },
-];
-
 export type MissionKind = 'steps' | 'drink' | 'timer' | 'breath';
 
 export interface Mission {
