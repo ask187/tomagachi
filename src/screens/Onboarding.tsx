@@ -209,7 +209,7 @@ export default function Onboarding({ onDone, onSkip, canCancel }: { onDone: () =
             <div className="card">
               <div className="row">
                 <div>
-                  <b>📱 On-device step sensor</b> <Badge tone="real">Real</Badge>
+                  <b>📱 On-device step sensor</b>
                   <p className="tiny muted">Uses this phone's motion sensor. Only the step count is kept.</p>
                 </div>
                 <button className="btn btn--sm" disabled={ped.perm === 'unsupported' || ped.perm === 'granted'} onClick={() => ped.start().then(() => ped.stop())}>
@@ -245,9 +245,6 @@ export default function Onboarding({ onDone, onSkip, canCancel }: { onDone: () =
                 <Segmented<Accountability> value={acc} onChange={setAcc} options={(['gentle', 'balanced', 'strict'] as const).map((k) => ({ value: k, label: ACCOUNTABILITY[k].label }))} />
                 <p className="tiny muted">{ACCOUNTABILITY[acc].desc} An override is always one tap (plus a short reflection) away.</p>
                 <p className="tiny muted">🤝 After setup you can add a recovery contact on the Shield screen. They can approve emergency access to shielded apps.</p>
-                <p className="tiny">
-                  <Badge tone="sim">Simulated in this demo</Badge> Real blocking requires OS Screen Time entitlements.
-                </p>
               </>
             )}
           </>

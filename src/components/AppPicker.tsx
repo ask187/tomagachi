@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { APP_CATALOG, CATEGORY_LABEL, PROTECTED_APPS, customApp, looksProtected, type AppCategory, type ShieldApp } from '../engine/apps';
 import { getShieldBridge } from '../platform/shieldBridge';
-import { Badge } from './ui';
 import AppIcon from './AppIcon';
 
 interface Props {
@@ -66,7 +65,6 @@ export default function AppPicker({ selected, custom, onChange }: Props) {
       <div className="picker__phone card">
         <div className="row">
           <b>📲 From this phone</b>
-          <Badge tone={bridge.mode === 'native' ? 'real' : 'sim'}>{bridge.platformLabel}</Badge>
         </div>
         {bridge.canPickInstalledApps ? (
           <>

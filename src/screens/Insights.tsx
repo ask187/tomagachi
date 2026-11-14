@@ -8,7 +8,7 @@ import { RULES, WEEKDAYS } from '../engine/config';
 import type { Snapshot } from '../engine/types';
 
 export default function Insights() {
-  const { journey, snaps, day, dispatch, state, isDemo, snap } = useStore();
+  const { journey, snaps, day, dispatch, state, snap } = useStore();
   const ui = useUI();
   const look = usePetLook();
   const [table, setTable] = useState(false);
@@ -26,7 +26,6 @@ export default function Insights() {
     <div className="screen">
       <div className="row">
         <h2>Progress & insights</h2>
-        {isDemo && <Badge tone="demo">sample history</Badge>}
       </div>
 
       <div className="kpis">

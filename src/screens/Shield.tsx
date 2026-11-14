@@ -4,7 +4,7 @@ import { useUI } from '../App';
 import { ACCOUNTABILITY, RULES } from '../engine/config';
 import { APP_CATALOG, PROTECTED_APPS, resolveApps, type ShieldApp } from '../engine/apps';
 import { deviceApps, getShieldBridge, realShieldSettings } from '../platform/shieldBridge';
-import { Badge, Modal, Segmented, Toggle, mmss } from '../components/ui';
+import { Modal, Segmented, Toggle, mmss } from '../components/ui';
 import AppPicker from '../components/AppPicker';
 import AppIcon from '../components/AppIcon';
 import { EmergencyRequestFlow, RecoveryContactCard } from '../components/Emergency';
@@ -56,12 +56,6 @@ export default function Shield() {
     <div className="screen">
       <div className="row">
         <h2>Distraction Shield</h2>
-        <Badge
-          tone={bridge.mode === 'native' ? 'real' : 'sim'}
-          title="Browsers cannot block other apps. The phone app uses iOS Screen Time or Android usage access."
-        >
-          {bridge.mode === 'native' ? 'ON-DEVICE' : 'SIMULATED'}
-        </Badge>
       </div>
       <p className="small muted">Opt-in. Only apps you pick. Essentials are never shielded, and you always have a way back in.</p>
 
@@ -226,7 +220,7 @@ export default function Shield() {
             ))}
           </div>
           <p className="small center">
-            {effective === 'unlocked' ? 'Enjoy your earned time 🎉' : 'Not shielded right now.'} <Badge tone="sim">placeholder screen</Badge>
+            {effective === 'unlocked' ? 'Enjoy your earned time 🎉' : 'Not shielded right now.'}
           </p>
         </div>
       </Modal>
@@ -258,7 +252,7 @@ function LockedSheet({ app, onClose, onEmergency, onOverride }: { app: ShieldApp
   return (
     <Modal open={!!app} onClose={onClose} title={`${app?.name} is shielded`}>
       <p className="small">
-        {prof.petName} is sitting on this app. You missed {snap.recentMisses} recent routines — a tiny mission earns it back. <Badge tone="sim">simulated block</Badge>
+        {prof.petName} is sitting on this app. You missed {snap.recentMisses} recent routines — a tiny mission earns it back.
       </p>
       <button
         className="btn btn--block"
@@ -323,7 +317,6 @@ function RealShieldCard() {
     <div className="card">
       <div className="row">
         <h4>📱 Real apps on this iPhone</h4>
-        <Badge tone="real">Screen Time</Badge>
       </div>
       <p className="small">
         {device.length === 0

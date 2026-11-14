@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useStore } from '../state/store';
 import { getHealth } from '../platform/native';
 import { useSyncHealthNow } from '../platform/useHealthSync';
-import { Badge } from './ui';
 
 /** Connect / sync Apple Health. Only works inside the HabitPet iPhone app. */
 export default function AppleHealthCard({ compact }: { compact?: boolean }) {
@@ -17,7 +16,6 @@ export default function AppleHealthCard({ compact }: { compact?: boolean }) {
       <div className="card">
         <div className="row">
           <b>❤️ Apple Health</b>
-          <Badge>iPhone app</Badge>
         </div>
         <p className="tiny muted">Steps, workouts, water, sleep and mindful minutes sync automatically in the HabitPet iPhone app. In the browser, log them here or use the step sensor.</p>
       </div>
@@ -44,7 +42,6 @@ export default function AppleHealthCard({ compact }: { compact?: boolean }) {
     <div className="card">
       <div className="row">
         <b>❤️ Apple Health</b>
-        <Badge tone="real">Real · on-device</Badge>
       </div>
       {!compact && <p className="tiny muted">Reads today's steps, exercise minutes, water, last night's sleep and mindful minutes. Read-only, stays on your phone.</p>}
       <button className="btn btn--sm" disabled={busy} onClick={connect}>

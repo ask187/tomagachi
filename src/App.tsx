@@ -217,7 +217,6 @@ export default function App() {
                       <span className="muted"> · Day {day + 1} · {WEEKDAYS[snap.weekday]}</span>
                     </div>
                     <div className="topbar__badges">
-                      {isDemo ? <Badge tone="demo">DEMO DATA</Badge> : <Badge tone="real">LIVE</Badge>}
                       {snap.status === 'rest' && <Badge tone="good">Rest day</Badge>}
                       {snap.status === 'paused' && <Badge tone="good">Paused</Badge>}
                     </div>

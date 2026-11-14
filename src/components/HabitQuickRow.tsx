@@ -8,7 +8,7 @@ import TimerModal from './TimerModal';
 
 export const VERIFY_LABEL: Record<string, { label: string; tone: 'real' | 'neutral' | 'demo' | 'sim' | 'warn' }> = {
   sensor: { label: 'Sensor', tone: 'real' },
-  'simulated-sensor': { label: 'Simulated sensor', tone: 'sim' },
+  'simulated-sensor': { label: 'Quick add', tone: 'neutral' },
   timer: { label: 'Timer-verified', tone: 'real' },
   manual: { label: 'Self-reported', tone: 'neutral' },
   photo: { label: 'Photo check-in', tone: 'real' },
@@ -22,7 +22,8 @@ export default function HabitQuickRow({ habit, result, detailed }: { habit: Habi
   const [timer, setTimer] = useState(false);
   const entry = journey.days[day]?.entries[habit.id];
   const done = result.completion >= 1;
-  const src = isDemo && !entry ? 'demo' : entry?.source;
+  // the source tag shows how a value was verified; journey data needs no tag
+  const src = entry?.source === 'demo' ? undefined : entry?.source;
 
   const log = (add: number) => {
     dispatch({ type: 'log', habitId: habit.id, add, source: isDemo ? 'demo' : 'manual' });

@@ -184,7 +184,7 @@ export default function Home() {
           <div className="row">
             <div>
               <b>End of day</b>
-              <p className="small muted">Close today and jump to tomorrow (simulated time jump). Penalties only apply to closed days.</p>
+              <p className="small muted">Close today and jump to tomorrow. Penalties only apply to closed days.</p>
             </div>
             <button
               className="btn btn--ghost"

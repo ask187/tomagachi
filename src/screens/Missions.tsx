@@ -122,7 +122,7 @@ function MissionRunner({ mission, onCancel, onComplete }: { mission: RankedMissi
               <Badge tone="real">{ped.receiving ? 'Sensor live' : 'Waiting for motion…'}</Badge>
             )}
             <button className="btn btn--ghost" onClick={() => setSimSteps((s) => s + 125)}>
-              Simulate walking <Badge tone="sim">SIM</Badge>
+              Walk +125 steps
             </button>
           </div>
           {ped.perm === 'unsupported' && <p className="tiny muted">No motion sensor in this browser — open on a phone for real counting.</p>}
@@ -165,7 +165,6 @@ function MissionRunner({ mission, onCancel, onComplete }: { mission: RankedMissi
           </button>
         </div>
       )}
-      {isDemo && <p className="tiny muted center">Demo journey — the result is recorded as demo data.</p>}
     </div>
   );
 }

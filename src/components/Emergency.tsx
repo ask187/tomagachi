@@ -103,7 +103,7 @@ export function RecoveryContactCard() {
               {copied === 'invite' ? 'Copied ✓' : 'Copy invite'}
             </button>
             <button className="btn btn--sm" onClick={() => set({ ...contact, status: 'active', since: Date.now() })}>
-              {contact.name} accepted <Badge tone="sim">demo</Badge>
+              {contact.name} accepted
             </button>
           </div>
           {copied === 'fail' && <p className="tiny muted">Couldn't copy here — select the text above instead.</p>}
@@ -304,7 +304,6 @@ export function EmergencyRequestFlow({ open, onClose, onUnlocked }: { open: bool
               </button>
 
               <div className="demo-box">
-                <Badge tone="sim">demo</Badge>
                 <span className="tiny">Without a server, {contact.name}'s side runs on this device.</span>
                 <button className="btn btn--sm btn--ghost" onClick={() => setContactView(true)}>
                   Open {contact.name}'s view

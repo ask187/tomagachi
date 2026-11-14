@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useStore } from '../state/store';
 import { useUI } from '../App';
-import { Badge, Toggle } from '../components/ui';
+import { Toggle } from '../components/ui';
 import { PET_COLORS, petSwatch } from '../components/Pet';
 import { WEEKDAYS } from '../engine/config';
 import SpeciesPicker from '../components/SpeciesPicker';
 import { SPECIES } from '../engine/species';
 
 export default function Settings() {
-  const { state, dispatch, journey, isDemo } = useStore();
+  const { state, dispatch, journey } = useStore();
   const ui = useUI();
   const p = journey.profile;
   const [confirming, setConfirming] = useState(false);
@@ -31,7 +31,7 @@ export default function Settings() {
       <h2>Settings & privacy</h2>
 
       <div className="card">
-        <h4>Your pet {isDemo && <Badge tone="demo">editing demo</Badge>}</h4>
+        <h4>Your pet</h4>
         <label className="form">
           Name
           <input value={p.petName} maxLength={16} onChange={(e) => dispatch({ type: 'profile', patch: { petName: e.target.value } })} />
@@ -104,18 +104,7 @@ export default function Settings() {
       </div>
 
       <div className="card">
-        <h4>About this build</h4>
-        <ul className="small">
-          <li>
-            <Badge tone="real">Real</Badge> rules engine, scoring, streaks, XP, evolution, timers, on-device step sensor (phones).
-          </li>
-          <li>
-            <Badge tone="sim">Simulated</Badge> app blocking (needs OS entitlements), "simulate" sensor buttons, time jumps.
-          </li>
-          <li>
-            <Badge tone="demo">Demo data</Badge> Time Machine scenarios and sample friends.
-          </li>
-        </ul>
+        <h4>Start fresh</h4>
         <button className="btn btn--ghost btn--sm" onClick={ui.openOnboarding}>
           {state.live ? 'Re-run onboarding (new pet)' : 'Create your own pet'}
         </button>
