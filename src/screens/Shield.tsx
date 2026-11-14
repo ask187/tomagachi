@@ -10,6 +10,9 @@ import AppIcon from '../components/AppIcon';
 import { EmergencyRequestFlow, RecoveryContactCard } from '../components/Emergency';
 import type { Accountability } from '../engine/types';
 
+// a real phone dock holds four apps; the full never-shielded list is in the app picker
+const DOCK = ['phone', 'sos', 'messages', 'maps'].map((id) => PROTECTED_APPS.find((a) => a.id === id)!);
+
 const FLOW = [
   { id: 'normal', label: 'Normal' },
   { id: 'warning', label: 'Warning' },
@@ -108,14 +111,14 @@ export default function Shield() {
           })}
         </div>
         <div className="mockphone__dock">
-          {PROTECTED_APPS.slice(0, 6).map((a) => (
+          {DOCK.map((a) => (
             <button key={a.id} className="app" onClick={() => ui.toast(`${a.name} is essential — never shielded.`)}>
               <AppIcon id={a.id} icon={a.icon} color="rgba(255,255,255,0.92)" className="app__icon app__icon--ess" />
               <small>{a.name.replace('Emergency ', '')}</small>
             </button>
           ))}
         </div>
-        <div className="tiny center mockphone__note">Dock = essential apps: always open</div>
+        <div className="tiny center mockphone__note">Dock = essential apps (calls, SOS, messages, maps, health, work): always open</div>
       </div>
 
       {effective === 'active' && (
