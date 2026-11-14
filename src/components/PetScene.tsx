@@ -1,6 +1,6 @@
 import Pet, { type Reaction } from './Pet';
 import Room from './Room';
-import { useStore } from '../state/store';
+import { usePetLook, useStore } from '../state/store';
 import { useUI } from '../App';
 import { captionFor } from './captions';
 import type { Snapshot } from '../engine/types';
@@ -34,12 +34,15 @@ export default function PetScene({
   const eq = journey.equipped;
   const roomItems = eq.room.filter((r) => snap.unlocked.includes(r));
   const r = reaction !== undefined ? reaction : ui.reaction;
+  const look = usePetLook(snap);
   return (
     <div className={`scene scene--${snap.conditionState} ${compact ? 'scene--compact' : ''}`}>
       <Room condition={snap.condition} state={snap.conditionState} stage={snap.stage} items={roomItems} />
       <div className="scene__pet">
         <Pet
           color={journey.profile.petColor}
+          species={look.species}
+          form={look.form}
           stage={snap.stage}
           condition={snap.conditionState}
           branch={snap.branch}

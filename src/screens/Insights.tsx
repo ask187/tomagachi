@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useStore } from '../state/store';
+import { usePetLook, useStore } from '../state/store';
 import { useUI } from '../App';
 import { detectInsights } from '../engine/insights';
 import { Badge } from '../components/ui';
@@ -10,6 +10,7 @@ import type { Snapshot } from '../engine/types';
 export default function Insights() {
   const { journey, snaps, day, dispatch, state, isDemo, snap } = useStore();
   const ui = useUI();
+  const look = usePetLook();
   const [table, setTable] = useState(false);
   const hist = snaps.slice(0, day + 1);
   const insights = useMemo(() => detectInsights(journey.habits, snaps, day).filter((i) => !state.dismissed.includes(i.id)), [journey.habits, snaps, day, state.dismissed]);
@@ -77,7 +78,7 @@ export default function Insights() {
         <div key={ins.id} className={`insight insight--${ins.kind}`}>
           {ins.kind === 'pattern' && (
             <div className="insight__pet">
-              <Pet color={journey.profile.petColor} stage={snap.stage} condition="stable" branch={snap.branch} reaction="clock" reactionKey={1} still={state.prefs.reducedMotion} size={74} />
+              <Pet color={journey.profile.petColor} species={look.species} form={look.form} stage={snap.stage} condition="stable" branch={snap.branch} reaction="clock" reactionKey={1} still={state.prefs.reducedMotion} size={74} />
             </div>
           )}
           <div className="insight__body">

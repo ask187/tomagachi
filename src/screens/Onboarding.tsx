@@ -4,6 +4,8 @@ import Pet, { PET_COLORS, petSwatch } from '../components/Pet';
 import { ACCOUNTABILITY, ALL_DAYS, HABIT_TEMPLATES, WEEKDAYS, habitFromTemplate } from '../engine/config';
 import AppPicker from '../components/AppPicker';
 import AppleHealthCard from '../components/AppleHealthCard';
+import SpeciesPicker from '../components/SpeciesPicker';
+import { SPECIES, type Species } from '../engine/species';
 import type { ShieldApp } from '../engine/apps';
 import { Badge, Confetti, Segmented, Toggle } from '../components/ui';
 import { usePedometer } from '../components/usePedometer';
@@ -25,6 +27,7 @@ export default function Onboarding({ onDone, onSkip, canCancel }: { onDone: () =
   const [step, setStep] = useState(0);
   const [name, setName] = useState('Mochi');
   const [color, setColor] = useState<PetColor>('violet');
+  const [species, setSpecies] = useState<Species>('mochi');
   const [picked, setPicked] = useState<HabitCategory[]>(['steps', 'hydration', 'exercise', 'sleep']);
   const [level, setLevel] = useState<Level>('some');
   const [targets, setTargets] = useState<Partial<Record<HabitCategory, number>>>({});
@@ -48,7 +51,7 @@ export default function Onboarding({ onDone, onSkip, canCancel }: { onDone: () =
     });
     dispatch({
       type: 'finishOnboarding',
-      profile: { petName: name.trim() || 'Mochi', petColor: color, accountability: acc, shield: { enabled: shieldOn, apps, custom: customApps }, startWeekday: new Date().getDay(), restDays },
+      profile: { petName: name.trim() || SPECIES[species].defaultName, species, petColor: color, accountability: acc, shield: { enabled: shieldOn, apps, custom: customApps }, startWeekday: new Date().getDay(), restDays },
       habits,
     });
     onDone();
@@ -94,9 +97,18 @@ export default function Onboarding({ onDone, onSkip, canCancel }: { onDone: () =
 
         {step === 1 && (
           <>
-            <h2>Meet your egg-xtremely judgmental friend</h2>
-            <div className="onb__pet">
-              <Pet color={color} stage={1} condition="thriving" />
+            <h2>Choose your companion</h2>
+            <SpeciesPicker
+              value={species}
+              color={color}
+              onChange={(sp) => {
+                setSpecies(sp);
+                setColor(SPECIES[sp].defaultColor);
+                if (!name.trim() || Object.values(SPECIES).some((x) => x.defaultName === name)) setName(SPECIES[sp].defaultName);
+              }}
+            />
+            <div className="onb__pet onb__pet--small">
+              <Pet color={color} species={species} stage={1} condition="thriving" />
             </div>
             <label className="form">
               Name (optional)
@@ -245,7 +257,7 @@ export default function Onboarding({ onDone, onSkip, canCancel }: { onDone: () =
           <div className="center onb__meet">
             <Confetti />
             <div className="onb__pet onb__pet--hatch">
-              <Pet color={color} stage={1} condition="thriving" head="bow" reaction="rejoice" reactionKey={2} />
+              <Pet color={color} species={species} stage={1} condition="thriving" head="bow" reaction="rejoice" reactionKey={2} />
             </div>
             <h2>{name || 'Mochi'} has hatched!</h2>
             <p className="small">

@@ -3,7 +3,8 @@ import { useUI } from '../App';
 import Pet from '../components/Pet';
 import PetScene from '../components/PetScene';
 import { Badge } from '../components/ui';
-import { COSMETICS, RULES, STAGES } from '../engine/config';
+import { COSMETICS, RULES } from '../engine/config';
+import { usePetLook } from '../state/store';
 
 const BRANCHES = {
   none: { label: 'Not yet decided', desc: 'Your branch locks in at Ascended, based on your strongest habit group.' },
@@ -15,6 +16,7 @@ const BRANCHES = {
 export default function Wardrobe() {
   const { journey, snap, dispatch } = useStore();
   const ui = useUI();
+  const look = usePetLook();
   const eq = journey.equipped;
   const isOn = (slot: string, id: string) => (slot === 'room' ? eq.room.includes(id) : (eq as unknown as Record<string, string | undefined>)[slot] === id);
 
@@ -23,24 +25,37 @@ export default function Wardrobe() {
       <PetScene compact showCaption={false} />
       <h2>Evolution</h2>
       <div className="stages">
-        {STAGES.map((s) => {
-          const reached = snap.stage >= s.stage;
+        {look.info.forms.map((name, i) => {
+          const f = i + 1;
+          const reached = look.form >= f || (f <= 4 && snap.stage >= f);
           return (
-            <div key={s.stage} className={`stage-card ${reached ? 'on' : ''} ${snap.stage === s.stage ? 'cur' : ''}`}>
-              <Pet color={journey.profile.petColor} stage={s.stage} condition="stable" branch={snap.branch} silhouette={!reached} still size={64} />
-              <b>{s.name}</b>
-              <small>{reached ? '✓ unlocked' : `${RULES.stageThresholds[s.stage - 1]} qual. days`}</small>
+            <div key={name} className={`stage-card ${reached ? 'on' : ''} ${look.form === f ? 'cur' : ''}`}>
+              <Pet color={journey.profile.petColor} species={look.species} stage={Math.min(f, 4)} form={f} condition="stable" branch={snap.branch} silhouette={!reached} still size={64} />
+              <b>{name}</b>
+              <small>{reached ? '✓ unlocked' : f === 5 ? '7-day streak at max' : `${RULES.stageThresholds[f - 1]} qual. days`}</small>
             </div>
           );
         })}
       </div>
       <div className="card small">
-        <b>Branch: {BRANCHES[snap.branch].label}</b>
-        <p className="muted">{BRANCHES[snap.branch].desc}</p>
+        {look.species === 'mochi' ? (
+          <>
+            <b>Branch: {BRANCHES[snap.branch].label}</b>
+            <p className="muted">{BRANCHES[snap.branch].desc}</p>
+          </>
+        ) : (
+          <>
+            <b>
+              {look.info.icon} {look.info.name} · {look.formName}
+            </b>
+            <p className="muted">{look.info.formBlurbs[look.form - 1]}</p>
+            {look.info.special && <p className="muted">✨ {look.info.special}</p>}
+          </>
+        )}
         <p className="muted">
           {snap.qualifyingDays} qualifying days (score ≥ {RULES.qualifyingScore}). Evolution is permanent — missed days never take it away.
         </p>
-        <button className="btn btn--sm btn--ghost" disabled={snap.stage < 2} onClick={() => ui.revealEvolution(Math.max(1, snap.stage - 1), snap.stage)}>
+        <button className="btn btn--sm btn--ghost" disabled={look.form < 2} onClick={() => ui.revealEvolution(Math.max(1, look.form - 1), look.form)}>
           ▶ Replay evolution
         </button>
       </div>

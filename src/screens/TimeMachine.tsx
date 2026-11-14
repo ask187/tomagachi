@@ -8,6 +8,7 @@ import { fmt } from '../engine/insights';
 import PetScene, { MOOD_TAG } from '../components/PetScene';
 import Pet from '../components/Pet';
 import type { Condition } from '../engine/types';
+import { SPECIES_LIST, formOf } from '../engine/species';
 
 const ORDER: Condition[] = ['thriving', 'stable', 'struggling', 'neglected', 'recovery'];
 
@@ -69,7 +70,7 @@ export default function TimeMachine({ onScene, presenter }: { onScene: (i: numbe
           <div className="moods">
             {moodDays.map(({ c, snap: s }) => (
               <button key={c} className={`mood ${snap.conditionState === c ? 'on' : ''}`} onClick={() => jump(s.day, 'home')} title={`Day ${s.day + 1}`}>
-                <Pet color={journey.profile.petColor} stage={s.stage} condition={c} branch={s.branch} still size={48} />
+                <Pet color={journey.profile.petColor} species={journey.profile.species ?? 'mochi'} form={formOf(journey.profile.species ?? 'mochi', s.stage, s.streak)} stage={s.stage} condition={c} branch={s.branch} still size={48} />
                 <small>{MOOD_TAG[c].label}</small>
                 <em>Day {s.day + 1}</em>
               </button>
@@ -111,6 +112,21 @@ export default function TimeMachine({ onScene, presenter }: { onScene: (i: numbe
           ))}
         </select>
         <p className="tiny muted">{sc.blurb}</p>
+        <div className="label">Companion</div>
+        <div className="chips">
+          {SPECIES_LIST.map((sp) => (
+            <button
+              key={sp.id}
+              className={`chip ${(state.demo.profile.species ?? 'mochi') === sp.id ? 'on' : ''}`}
+              onClick={() => {
+                if (!isDemo) dispatch({ type: 'setMode', mode: 'demo' });
+                dispatch({ type: 'profile', patch: { species: sp.id, petColor: sp.defaultColor, petName: sp.defaultName } });
+              }}
+            >
+              {sp.icon} {sp.name}
+            </button>
+          ))}
+        </div>
 
         <div className="tm__scrub">
           <button className="icon-btn" onClick={() => jump(Math.max(0, state.viewDay - 1))} aria-label="Previous day">

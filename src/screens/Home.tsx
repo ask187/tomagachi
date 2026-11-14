@@ -2,7 +2,8 @@ import { useStore } from '../state/store';
 import { useUI } from '../App';
 import PetScene from '../components/PetScene';
 import { Badge, Meter, Ring } from '../components/ui';
-import { RULES, STAGES } from '../engine/config';
+import { RULES } from '../engine/config';
+import { usePetLook } from '../state/store';
 import { nextStageAt } from '../engine/engine';
 import { fmt } from '../engine/insights';
 import HabitQuickRow from '../components/HabitQuickRow';
@@ -33,6 +34,7 @@ const STATE_LABEL = {
 export default function Home() {
   const { snap, journey, isDemo, dispatch, snaps, day } = useStore();
   const ui = useUI();
+  const look = usePetLook();
   const st = STATE_LABEL[snap.conditionState];
   const next = nextStageAt(snap.stage);
   const prevAt = RULES.stageThresholds[snap.stage - 1] ?? 0;
@@ -87,7 +89,7 @@ export default function Home() {
           color="linear-gradient(90deg,#ffcf3f,#ff8a5c)"
           label={
             <>
-              Stage {snap.stage} · <b>{STAGES[snap.stage - 1].name}</b>
+              Stage {snap.stage} · <b>{look.formName}</b>
             </>
           }
           sub={next ? `${snap.qualifyingDays}/${next} qualifying days` : 'Max stage reached'}

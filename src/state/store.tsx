@@ -3,6 +3,7 @@ import { emptyDay, simulate } from '../engine/engine';
 import { SCENARIOS } from '../engine/scenarios';
 import type { Suggestion } from '../engine/insights';
 import type { EmergencyRequest } from '../engine/emergency';
+import { SPECIES, formName, formOf } from '../engine/species';
 import type { DayLog, Entry, EntrySource, Habit, Profile, Snapshot } from '../engine/types';
 
 export interface Equipped {
@@ -293,6 +294,15 @@ export function useStore() {
   const c = useContext(StoreCtx);
   if (!c) throw new Error('useStore outside provider');
   return c;
+}
+
+/** The pet's species and current visual form (Kiro has a 5th, streak-based form). */
+export function usePetLook(snapshot?: Snapshot) {
+  const { journey, snap } = useStore();
+  const s = snapshot ?? snap;
+  const species = journey.profile.species ?? 'mochi';
+  const form = formOf(species, s.stage, s.streak);
+  return { species, form, formName: formName(species, form), info: SPECIES[species] };
 }
 
 export function useHabitIndex() {

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useStore } from './state/store';
+import { usePetLook, useStore } from './state/store';
 import type { Reaction } from './components/Pet';
 import Onboarding from './screens/Onboarding';
 import Home from './screens/Home';
@@ -80,10 +80,11 @@ export default function App() {
 
   // ---- automatic pet reactions + evolution reveal when the derived state changes ----
   const journeyKey = isDemo ? `demo:${state.demo.scenarioId}` : 'live';
-  const prev = useRef({ key: journeyKey, day, stage: snap.stage, cond: snap.condition, score: snap.score ?? 0, missions: snap.missionsDone });
+  const look = usePetLook();
+  const prev = useRef({ key: journeyKey, day, stage: look.form, cond: snap.condition, score: snap.score ?? 0, missions: snap.missionsDone });
   useEffect(() => {
     const p = prev.current;
-    const cur = { key: journeyKey, day, stage: snap.stage, cond: snap.condition, score: snap.score ?? 0, missions: snap.missionsDone };
+    const cur = { key: journeyKey, day, stage: look.form, cond: snap.condition, score: snap.score ?? 0, missions: snap.missionsDone };
     prev.current = cur;
     if (p.key !== cur.key) return;
     if (cur.stage > p.stage) {
@@ -102,7 +103,7 @@ export default function App() {
     const d = cur.cond - p.cond;
     if (d >= 8) react('rejoice');
     else if (d <= -8) react(snap.condition < 35 ? 'facepalm' : 'sigh');
-  }, [journeyKey, day, snap.stage, snap.condition, snap.score, snap.missionsDone, react, confetti]);
+  }, [journeyKey, day, look.form, snap.condition, snap.score, snap.missionsDone, react, confetti]);
 
   // shield unlock window expiry
   useEffect(() => {
