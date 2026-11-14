@@ -46,6 +46,10 @@ To try it as a real user, choose **Hatch my pet**. Onboarding walks through the 
 | Recovery contact & emergency codes | ✅ Real logic (validation, limits, expiry, codes tied to each request). 🟨 The contact's approval screen runs on the same device in the demo |
 | "Simulate +1.5k steps", "Simulate sync failure", time jumps, Time Machine scenarios, friends | 🟨 Demo data, labelled in the UI |
 
+## On your iPhone: Apple Health + real app blocking
+
+`ios/` is a native iPhone app (Capacitor) around this web app. Its Swift plugin reads **Apple Health** and blocks **real apps** with Screen Time, and the web app detects it automatically. Building it needs a Mac with Xcode and a paid Apple Developer account. Follow **[docs/IOS_SETUP.md](docs/IOS_SETUP.md)**. The Swift code has not been compiled or run yet.
+
 ## Distraction Shield: your real apps + emergency access
 
 - **Pick your apps.** Shield → *Edit apps*. Choose from 26 common apps (Instagram, TikTok, YouTube, Netflix…), search, or add any app by name. Anything that looks essential, like banking, maps, messaging, health or work, is refused. Calls, SOS, messages, maps and health are never shielded.

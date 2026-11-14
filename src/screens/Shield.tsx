@@ -3,7 +3,7 @@ import { useStore } from '../state/store';
 import { useUI } from '../App';
 import { ACCOUNTABILITY, RULES } from '../engine/config';
 import { APP_CATALOG, PROTECTED_APPS, resolveApps, type ShieldApp } from '../engine/apps';
-import { getShieldBridge } from '../platform/shieldBridge';
+import { deviceApps, getShieldBridge, realShieldSettings } from '../platform/shieldBridge';
 import { Badge, Modal, Segmented, Toggle, mmss } from '../components/ui';
 import AppPicker from '../components/AppPicker';
 import { EmergencyRequestFlow, RecoveryContactCard } from '../components/Emergency';
@@ -40,14 +40,8 @@ export default function Shield() {
   const shieldOn = snap.shield !== 'off';
   const isLocked = (id: string) => effective === 'active' && prof.shield.apps.includes(id);
 
-  // keep a native shield (when present) in sync with the rules engine's decision
-  useEffect(() => {
-    bridge.apply(effective === 'active', shielded).catch(() => undefined);
-  }, [effective, prof.shield.apps.join(',')]);
-
   const unlock = (minutes: number, why: string) => {
-    ui.unlock(minutes);
-    bridge.unlockFor(minutes, shielded).catch(() => undefined);
+    ui.unlock(minutes); // also lifts the real iPhone shield when running natively
     ui.toast(why);
   };
 
@@ -147,6 +141,8 @@ export default function Shield() {
           )}
         </>
       )}
+
+      {bridge.mode === 'native' && <RealShieldCard />}
 
       <div className="card">
         <div className="row">
@@ -308,5 +304,50 @@ function LockedSheet({ app, onClose, onEmergency, onOverride }: { app: ShieldApp
         </div>
       )}
     </Modal>
+  );
+}
+
+/** iPhone app only: shows whether real apps are being blocked, and demo test buttons. */
+function RealShieldCard() {
+  const { state, dispatch, journey, isDemo, snap } = useStore();
+  const ui = useUI();
+  const device = deviceApps(realShieldSettings(state.live, journey.profile.shield));
+  const tokens = device.map((a) => a.token!);
+  const enforcing = !isDemo || !!state.prefs.realShieldInDemo;
+  const test = (on: boolean) =>
+    window.HabitPetNative?.setShield(on, tokens)
+      .then(() => ui.toast(on ? '🛡️ Real apps blocked — try opening one' : '🔓 Real apps unblocked'))
+      .catch((e: Error) => ui.toast(`Screen Time error: ${e.message}`));
+  return (
+    <div className="card">
+      <div className="row">
+        <h4>📱 Real apps on this iPhone</h4>
+        <Badge tone="real">Screen Time</Badge>
+      </div>
+      <p className="small">
+        {device.length === 0
+          ? isDemo && state.live
+            ? 'Pick phone apps on your own pet first (switch to My live pet ▸ Edit apps ▸ Choose installed apps). The demo uses those.'
+            : 'No phone apps picked yet. Tap Edit apps ▸ Choose installed apps.'
+          : `${device.length} app${device.length > 1 ? 's' : ''} from this phone. ${enforcing ? (snap.shield === 'active' ? 'Blocked right now.' : 'Will be blocked when the shield turns on.') : 'Not blocked during the demo journey.'}`}
+      </p>
+      {isDemo && (
+        <Toggle
+          checked={!!state.prefs.realShieldInDemo}
+          onChange={(v) => dispatch({ type: 'prefs', patch: { realShieldInDemo: v } })}
+          label="Block real apps during the demo"
+          desc="When the Time Machine shows the shield, your real apps get blocked too."
+        />
+      )}
+      <div className="row gap wrap">
+        <button className="btn btn--sm" disabled={!device.length} onClick={() => test(true)}>
+          Block now (test)
+        </button>
+        <button className="btn btn--sm btn--ghost" onClick={() => test(false)}>
+          Unblock now
+        </button>
+      </div>
+      <p className="tiny muted">Essential apps can't be blocked. Unlocks re-lock in the background after at least 15 min (an iOS limit), or right away when you return to HabitPet.</p>
+    </div>
   );
 }

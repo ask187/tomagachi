@@ -43,7 +43,7 @@ export interface Habit {
   step: number;
 }
 
-export type EntrySource = 'manual' | 'timer' | 'sensor' | 'photo' | 'demo' | 'simulated-sensor';
+export type EntrySource = 'manual' | 'timer' | 'sensor' | 'photo' | 'demo' | 'simulated-sensor' | 'health';
 
 export interface Entry {
   /** null = unknown (sync failure / no data) — never silently treated as 0 */

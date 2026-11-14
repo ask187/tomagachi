@@ -29,6 +29,8 @@ export interface Prefs {
   reducedMotion: boolean;
   captions: boolean;
   demoSpeed: boolean; // accelerate timers (1 minute ≈ 3 seconds)
+  /** iPhone app: also block REAL apps when the Time Machine demo shield is on */
+  realShieldInDemo?: boolean;
 }
 
 export type Mode = 'live' | 'demo';

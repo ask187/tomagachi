@@ -15,6 +15,8 @@ import EvolutionReveal from './components/EvolutionReveal';
 import { Badge, Confetti } from './components/ui';
 import { STORYBOARD } from './engine/scenarios';
 import { WEEKDAYS } from './engine/config';
+import { deviceApps, getShieldBridge, realShieldSettings } from './platform/shieldBridge';
+import { useHealthSync } from './platform/useHealthSync';
 
 export type Screen = 'home' | 'routines' | 'shield' | 'missions' | 'pet' | 'insights' | 'settings' | 'friends';
 
@@ -115,10 +117,28 @@ export default function App() {
   }, [unlockUntil, toast]);
   useEffect(() => setUnlockUntil(null), [day, journeyKey]);
 
+  // ---- REAL app blocking (iPhone app only) ----
+  // The rules engine decides; the native shield just follows. During Time
+  // Machine demos real apps are only touched if the user opted in.
+  const bridge = getShieldBridge();
+  const enforce = bridge.mode === 'native' && (!isDemo || !!state.prefs.realShieldInDemo);
+  const tokens = deviceApps(realShieldSettings(state.live, journey.profile.shield)).map((a) => a.token!);
+  // only apps picked from this phone carry a Screen Time token; nothing picked = nothing blocked
+  const wantShield = enforce && tokens.length > 0 && snap.shield === 'active' && !unlockUntil;
+  useEffect(() => {
+    if (bridge.mode !== 'native') return;
+    window.HabitPetNative?.setShield(wantShield, tokens).catch(() => undefined);
+  }, [wantShield, tokens.join(','), bridge.mode]);
+
   const unlock = useCallback(
-    (minutes: number) => setUnlockUntil(Date.now() + minutes * (state.prefs.demoSpeed ? 3000 : 60000)),
-    [state.prefs.demoSpeed],
+    (minutes: number) => {
+      setUnlockUntil(Date.now() + minutes * (state.prefs.demoSpeed ? 3000 : 60000));
+      if (enforce && snap.shield === 'active') window.HabitPetNative?.unlockFor(minutes, tokens).catch(() => undefined);
+    },
+    [state.prefs.demoSpeed, enforce, snap.shield, tokens.join(',')],
   );
+
+  useHealthSync(toast);
 
   const runScene = useCallback(
     (i: number) => {

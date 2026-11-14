@@ -13,6 +13,7 @@ export const VERIFY_LABEL: Record<string, { label: string; tone: 'real' | 'neutr
   manual: { label: 'Self-reported', tone: 'neutral' },
   photo: { label: 'Photo check-in', tone: 'real' },
   demo: { label: 'Demo data', tone: 'demo' },
+  health: { label: 'Apple Health', tone: 'real' },
 };
 
 export default function HabitQuickRow({ habit, result, detailed }: { habit: Habit; result: HabitResult; detailed?: boolean }) {

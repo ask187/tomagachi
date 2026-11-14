@@ -1,4 +1,5 @@
 import type { ShieldApp } from '../engine/apps';
+import type { ShieldSettings } from '../engine/types';
 
 // ---------------------------------------------------------------------------
 // Platform bridge for REAL app restrictions.
@@ -75,4 +76,15 @@ export function getShieldBridge(): ShieldBridge {
     apply: async () => undefined,
     unlockFor: async () => undefined,
   };
+}
+
+/** Apps picked from this phone (they carry Screen Time tokens) that are still on the shield list. */
+export function deviceApps(shield?: ShieldSettings): ShieldApp[] {
+  if (!shield) return [];
+  return (shield.custom ?? []).filter((a) => a.source === 'device' && a.token && shield.apps.includes(a.id));
+}
+
+/** Real apps always come from the user's own (live) pet, also during Time Machine demos. */
+export function realShieldSettings(live: { profile: { shield: ShieldSettings } } | null, current: ShieldSettings): ShieldSettings {
+  return live?.profile.shield ?? current;
 }

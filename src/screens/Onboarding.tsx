@@ -3,6 +3,7 @@ import { useStore } from '../state/store';
 import Pet, { PET_COLORS, petSwatch } from '../components/Pet';
 import { ACCOUNTABILITY, ALL_DAYS, HABIT_TEMPLATES, WEEKDAYS, habitFromTemplate } from '../engine/config';
 import AppPicker from '../components/AppPicker';
+import AppleHealthCard from '../components/AppleHealthCard';
 import type { ShieldApp } from '../engine/apps';
 import { Badge, Confetti, Segmented, Toggle } from '../components/ui';
 import { usePedometer } from '../components/usePedometer';
@@ -208,10 +209,7 @@ export default function Onboarding({ onDone, onSkip, canCancel }: { onDone: () =
               <b>✍️ Manual & timer tracking</b> <Badge>Always on</Badge>
               <p className="tiny muted">Log water, sleep and anything else with one tap; timers verify workouts, reading and meditation.</p>
             </div>
-            <div className="card muted">
-              <b>⌚ Apple Health / Health Connect</b> <Badge>Roadmap</Badge>
-              <p className="tiny">Native app integration — not available in the web prototype.</p>
-            </div>
+            <AppleHealthCard />
           </>
         )}
 
