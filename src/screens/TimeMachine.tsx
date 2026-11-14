@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../state/store';
 import { useUI } from '../App';
 import { SCENARIOS, STORYBOARD } from '../engine/scenarios';
-import { Badge } from '../components/ui';
 import { WEEKDAYS } from '../engine/config';
 import { fmt } from '../engine/insights';
 import { simulate } from '../engine/engine';
@@ -19,7 +18,7 @@ const SCEN_FRESH: Record<string, { days: string; habits: string }> = Object.from
   SCENARIOS.map((f) => f()).map((s) => [s.id, { days: JSON.stringify(s.days), habits: JSON.stringify(s.habits) }]),
 );
 
-/** Demo Time Machine (spec §14) — hackathon-only control surface. */
+/** Time Machine (spec §14): replay a scripted journey in seconds. */
 export default function TimeMachine({ onScene, presenter, onLeave }: { onScene: (i: number) => void; presenter: number | null; onLeave?: () => void }) {
   const { state, dispatch, journey, snap, snaps, isDemo, day } = useStore();
   const ui = useUI();
@@ -61,9 +60,8 @@ export default function TimeMachine({ onScene, presenter, onLeave }: { onScene: 
     <div className="tm">
       <div className="tm__head">
         <h3>⏱ Demo Time Machine</h3>
-        <Badge tone="demo">hackathon only</Badge>
       </div>
-      <p className="tiny muted">Simulates weeks of use in seconds. Everything injected here is labelled demo data.</p>
+      <p className="tiny muted">Replays weeks of habits in seconds.</p>
 
       <div className="tm__preview">
         <PetScene compact showCaption={false} />
@@ -155,7 +153,7 @@ export default function TimeMachine({ onScene, presenter, onLeave }: { onScene: 
           <button className="icon-btn" onClick={() => jump(Math.max(0, state.viewDay - 1))} aria-label="Previous day">
             ◀
           </button>
-          <input type="range" min={0} max={max} value={state.viewDay} onChange={(e) => jump(Number(e.target.value))} aria-label="Simulated day" />
+          <input type="range" min={0} max={max} value={state.viewDay} onChange={(e) => jump(Number(e.target.value))} aria-label="Day" />
           <button className="icon-btn" onClick={() => jump(Math.min(max, state.viewDay + 1))} aria-label="Next day">
             ▶
           </button>

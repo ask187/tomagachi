@@ -22,7 +22,6 @@ export default function Friends() {
     <div className="screen">
       <div className="row">
         <h2>Friends</h2>
-        <Badge tone="demo">Preview · sample friends</Badge>
       </div>
       <div className="friends">
         {FRIENDS.map((f) => (

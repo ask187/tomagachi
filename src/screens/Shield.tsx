@@ -4,10 +4,14 @@ import { useUI } from '../App';
 import { ACCOUNTABILITY, RULES } from '../engine/config';
 import { APP_CATALOG, PROTECTED_APPS, resolveApps, type ShieldApp } from '../engine/apps';
 import { deviceApps, getShieldBridge, realShieldSettings } from '../platform/shieldBridge';
-import { Badge, Modal, Segmented, Toggle, mmss } from '../components/ui';
+import { Modal, Segmented, Toggle, mmss } from '../components/ui';
 import AppPicker from '../components/AppPicker';
+import AppIcon from '../components/AppIcon';
 import { EmergencyRequestFlow, RecoveryContactCard } from '../components/Emergency';
 import type { Accountability } from '../engine/types';
+
+// a real phone dock holds four apps; the full never-shielded list is in the app picker
+const DOCK = ['phone', 'sos', 'messages', 'maps'].map((id) => PROTECTED_APPS.find((a) => a.id === id)!);
 
 const FLOW = [
   { id: 'normal', label: 'Normal' },
@@ -52,12 +56,6 @@ export default function Shield() {
     <div className="screen">
       <div className="row">
         <h2>Distraction Shield</h2>
-        <Badge
-          tone={bridge.mode === 'native' ? 'real' : 'sim'}
-          title="Browsers cannot block other apps. The phone app uses iOS Screen Time or Android usage access."
-        >
-          {bridge.mode === 'native' ? 'ON-DEVICE' : 'SIMULATED'}
-        </Badge>
       </div>
       <p className="small muted">Opt-in. Only apps you pick. Essentials are never shielded, and you always have a way back in.</p>
 
@@ -97,10 +95,9 @@ export default function Shield() {
             const l = isLocked(a.id);
             return (
               <button key={a.id} className={`app ${l ? 'app--locked' : ''}`} onClick={() => (l ? setLocked(a) : setOpened(a))}>
-                <span className="app__icon" style={{ background: a.color }}>
-                  {a.icon}
+                <AppIcon id={a.id} icon={a.icon} color={a.color} className="app__icon">
                   {l && <em>🔒</em>}
-                </span>
+                </AppIcon>
                 <small>{a.name}</small>
                 {sel && <i className="app__sel" title="On your shield list" />}
               </button>
@@ -108,14 +105,14 @@ export default function Shield() {
           })}
         </div>
         <div className="mockphone__dock">
-          {PROTECTED_APPS.slice(0, 6).map((a) => (
+          {DOCK.map((a) => (
             <button key={a.id} className="app" onClick={() => ui.toast(`${a.name} is essential — never shielded.`)}>
-              <span className="app__icon app__icon--ess">{a.icon}</span>
+              <AppIcon id={a.id} icon={a.icon} color="rgba(255,255,255,0.92)" className="app__icon app__icon--ess" />
               <small>{a.name.replace('Emergency ', '')}</small>
             </button>
           ))}
         </div>
-        <div className="tiny center mockphone__note">Dock = essential apps: always open</div>
+        <div className="tiny center mockphone__note">Dock = essential apps (calls, SOS, messages, maps, health, work): always open</div>
       </div>
 
       {effective === 'active' && (
@@ -157,9 +154,7 @@ export default function Shield() {
           <div className="shield-list">
             {shielded.map((a) => (
               <span key={a.id} className="shield-app">
-                <span className="shield-app__icon" style={{ background: a.color }}>
-                  {a.icon}
-                </span>
+                <AppIcon id={a.id} icon={a.icon} color={a.color} className="shield-app__icon" />
                 {a.name}
                 <button
                   className="shield-app__x"
@@ -217,7 +212,7 @@ export default function Shield() {
         }}
       />
 
-      <Modal open={!!opened} onClose={() => setOpened(null)} title={opened ? `${opened.icon} ${opened.name}` : ''}>
+      <Modal open={!!opened} onClose={() => setOpened(null)} title={opened?.name ?? ''}>
         <div className="fakeapp">
           <div className="fakeapp__feed">
             {[1, 2, 3].map((i) => (
@@ -225,7 +220,7 @@ export default function Shield() {
             ))}
           </div>
           <p className="small center">
-            {effective === 'unlocked' ? 'Enjoy your earned time 🎉' : 'Not shielded right now.'} <Badge tone="sim">placeholder screen</Badge>
+            {effective === 'unlocked' ? 'Enjoy your earned time 🎉' : 'Not shielded right now.'}
           </p>
         </div>
       </Modal>
@@ -255,9 +250,9 @@ function LockedSheet({ app, onClose, onEmergency, onOverride }: { app: ShieldApp
     }
   }, [app]);
   return (
-    <Modal open={!!app} onClose={onClose} title={`${app?.icon} ${app?.name} is shielded`}>
+    <Modal open={!!app} onClose={onClose} title={`${app?.name} is shielded`}>
       <p className="small">
-        {prof.petName} is sitting on this app. You missed {snap.recentMisses} recent routines — a tiny mission earns it back. <Badge tone="sim">simulated block</Badge>
+        {prof.petName} is sitting on this app. You missed {snap.recentMisses} recent routines — a tiny mission earns it back.
       </p>
       <button
         className="btn btn--block"
@@ -322,7 +317,6 @@ function RealShieldCard() {
     <div className="card">
       <div className="row">
         <h4>📱 Real apps on this iPhone</h4>
-        <Badge tone="real">Screen Time</Badge>
       </div>
       <p className="small">
         {device.length === 0

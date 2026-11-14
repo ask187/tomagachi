@@ -42,10 +42,10 @@ export default function Routines() {
         <div className="card sensor">
           <div className="row">
             <div>
-              <b>👟 Step sensor</b> <Badge tone="real">Real · on-device</Badge>
+              <b>👟 Step sensor</b>
               <p className="tiny muted">
                 Counts steps from this phone's motion sensor. Raw motion data never leaves the device.
-                {ped.perm === 'unsupported' && ' This browser has no motion sensor — use the simulated walk below.'}
+                {ped.perm === 'unsupported' && ' This browser has no motion sensor — use +1.5k steps below.'}
                 {ped.perm === 'denied' && ' Permission denied — you can still log manually.'}
                 {ped.active && !ped.receiving && ' Waiting for motion data… (desktop browsers usually have none)'}
               </p>
@@ -77,19 +77,19 @@ export default function Routines() {
               className="btn btn--sm btn--ghost"
               onClick={() => {
                 dispatch({ type: 'log', habitId: walk.id, add: 1500, source: 'simulated-sensor' });
-                ui.toast('Simulated sensor: +1,500 steps (labelled)');
+                ui.toast('+1,500 steps');
               }}
             >
-              Simulate +1.5k <Badge tone="sim">SIM</Badge>
+              +1.5k steps
             </button>
             <button
               className="btn btn--sm btn--ghost"
               onClick={() => {
                 dispatch({ type: 'log', habitId: walk.id, set: null, source: 'sensor' });
-                ui.toast('Sync failure simulated — steps marked unknown, not missed');
+                ui.toast('Steps marked unknown (sync failure) — not counted as missed');
               }}
             >
-              Simulate sync failure
+              Mark steps unknown
             </button>
           </div>
         </div>

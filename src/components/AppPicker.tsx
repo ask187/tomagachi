@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { APP_CATALOG, CATEGORY_LABEL, PROTECTED_APPS, customApp, looksProtected, type AppCategory, type ShieldApp } from '../engine/apps';
 import { getShieldBridge } from '../platform/shieldBridge';
-import { Badge } from './ui';
+import AppIcon from './AppIcon';
 
 interface Props {
   selected: string[];
@@ -65,7 +65,6 @@ export default function AppPicker({ selected, custom, onChange }: Props) {
       <div className="picker__phone card">
         <div className="row">
           <b>📲 From this phone</b>
-          <Badge tone={bridge.mode === 'native' ? 'real' : 'sim'}>{bridge.platformLabel}</Badge>
         </div>
         {bridge.canPickInstalledApps ? (
           <>
@@ -97,9 +96,7 @@ export default function AppPicker({ selected, custom, onChange }: Props) {
               const on = selected.includes(a.id);
               return (
                 <button key={a.id} className={`picker__app ${on ? 'on' : ''}`} onClick={() => toggle(a.id)} aria-pressed={on}>
-                  <span className="picker__icon" style={{ background: a.color }}>
-                    {a.icon}
-                  </span>
+                  <AppIcon id={a.id} icon={a.icon} color={a.color} className="picker__icon" />
                   <small>{a.name}</small>
                   {a.source !== 'catalog' && <em>{a.source === 'device' ? 'phone' : 'added'}</em>}
                   {on && <i>✓</i>}
