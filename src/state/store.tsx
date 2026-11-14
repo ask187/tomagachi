@@ -3,6 +3,7 @@ import { emptyDay, simulate } from '../engine/engine';
 import { SCENARIOS } from '../engine/scenarios';
 import type { Suggestion } from '../engine/insights';
 import type { EmergencyRequest } from '../engine/emergency';
+import { SPECIES, formName, formOf } from '../engine/species';
 import type { DayLog, Entry, EntrySource, Habit, Profile, Snapshot } from '../engine/types';
 
 export interface Equipped {
@@ -29,6 +30,8 @@ export interface Prefs {
   reducedMotion: boolean;
   captions: boolean;
   demoSpeed: boolean; // accelerate timers (1 minute ≈ 3 seconds)
+  /** iPhone app: also block REAL apps when the Time Machine demo shield is on */
+  realShieldInDemo?: boolean;
 }
 
 export type Mode = 'live' | 'demo';
@@ -158,8 +161,12 @@ function reducer(s: AppState, a: Action): AppState {
     case 'setMode':
       if (a.mode === 'live' && !s.live) return s;
       return { ...s, mode: a.mode };
-    case 'loadScenario':
-      return { ...s, mode: 'demo', demo: scenarioJourney(a.id), viewDay: 0 };
+    case 'loadScenario': {
+      // a fresh copy of the scripted journey; keep the companion chosen for the demo
+      const fresh = scenarioJourney(a.id);
+      const { species, petColor, petName } = s.demo.profile;
+      return { ...s, mode: 'demo', demo: { ...fresh, profile: { ...fresh.profile, species, petColor, petName } }, viewDay: 0 };
+    }
     case 'setViewDay':
       return { ...s, viewDay: Math.max(0, Math.min(a.day, s.demo.days.length - 1)) };
     case 'log':
@@ -291,6 +298,15 @@ export function useStore() {
   const c = useContext(StoreCtx);
   if (!c) throw new Error('useStore outside provider');
   return c;
+}
+
+/** The pet's species and current visual form (Kiro has a 5th, streak-based form). */
+export function usePetLook(snapshot?: Snapshot) {
+  const { journey, snap } = useStore();
+  const s = snapshot ?? snap;
+  const species = journey.profile.species ?? 'mochi';
+  const form = formOf(species, s.stage, s.streak);
+  return { species, form, formName: formName(species, form), info: SPECIES[species] };
 }
 
 export function useHabitIndex() {

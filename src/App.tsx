@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useStore } from './state/store';
+import { usePetLook, useStore } from './state/store';
 import type { Reaction } from './components/Pet';
 import Onboarding from './screens/Onboarding';
 import Home from './screens/Home';
@@ -15,6 +15,8 @@ import EvolutionReveal from './components/EvolutionReveal';
 import { Badge, Confetti } from './components/ui';
 import { STORYBOARD } from './engine/scenarios';
 import { WEEKDAYS } from './engine/config';
+import { deviceApps, getShieldBridge, realShieldSettings } from './platform/shieldBridge';
+import { useHealthSync } from './platform/useHealthSync';
 
 export type Screen = 'home' | 'routines' | 'shield' | 'missions' | 'pet' | 'insights' | 'settings' | 'friends';
 
@@ -77,11 +79,12 @@ export default function App() {
   }, []);
 
   // ---- automatic pet reactions + evolution reveal when the derived state changes ----
-  const journeyKey = isDemo ? `demo:${state.demo.scenarioId}` : 'live';
-  const prev = useRef({ key: journeyKey, day, stage: snap.stage, cond: snap.condition, score: snap.score ?? 0, missions: snap.missionsDone });
+  const journeyKey = `${isDemo ? `demo:${state.demo.scenarioId}` : 'live'}:${journey.profile.species ?? 'mochi'}`;
+  const look = usePetLook();
+  const prev = useRef({ key: journeyKey, day, stage: look.form, cond: snap.condition, score: snap.score ?? 0, missions: snap.missionsDone });
   useEffect(() => {
     const p = prev.current;
-    const cur = { key: journeyKey, day, stage: snap.stage, cond: snap.condition, score: snap.score ?? 0, missions: snap.missionsDone };
+    const cur = { key: journeyKey, day, stage: look.form, cond: snap.condition, score: snap.score ?? 0, missions: snap.missionsDone };
     prev.current = cur;
     if (p.key !== cur.key) return;
     if (cur.stage > p.stage) {
@@ -100,7 +103,7 @@ export default function App() {
     const d = cur.cond - p.cond;
     if (d >= 8) react('rejoice');
     else if (d <= -8) react(snap.condition < 35 ? 'facepalm' : 'sigh');
-  }, [journeyKey, day, snap.stage, snap.condition, snap.score, snap.missionsDone, react, confetti]);
+  }, [journeyKey, day, look.form, snap.condition, snap.score, snap.missionsDone, react, confetti]);
 
   // shield unlock window expiry
   useEffect(() => {
@@ -115,15 +118,34 @@ export default function App() {
   }, [unlockUntil, toast]);
   useEffect(() => setUnlockUntil(null), [day, journeyKey]);
 
+  // ---- REAL app blocking (iPhone app only) ----
+  // The rules engine decides; the native shield just follows. During Time
+  // Machine demos real apps are only touched if the user opted in.
+  const bridge = getShieldBridge();
+  const enforce = bridge.mode === 'native' && (!isDemo || !!state.prefs.realShieldInDemo);
+  const tokens = deviceApps(realShieldSettings(state.live, journey.profile.shield)).map((a) => a.token!);
+  // only apps picked from this phone carry a Screen Time token; nothing picked = nothing blocked
+  const wantShield = enforce && tokens.length > 0 && snap.shield === 'active' && !unlockUntil;
+  useEffect(() => {
+    if (bridge.mode !== 'native') return;
+    window.HabitPetNative?.setShield(wantShield, tokens).catch(() => undefined);
+  }, [wantShield, tokens.join(','), bridge.mode]);
+
   const unlock = useCallback(
-    (minutes: number) => setUnlockUntil(Date.now() + minutes * (state.prefs.demoSpeed ? 3000 : 60000)),
-    [state.prefs.demoSpeed],
+    (minutes: number) => {
+      setUnlockUntil(Date.now() + minutes * (state.prefs.demoSpeed ? 3000 : 60000));
+      if (enforce && snap.shield === 'active') window.HabitPetNative?.unlockFor(minutes, tokens).catch(() => undefined);
+    },
+    [state.prefs.demoSpeed, enforce, snap.shield, tokens.join(',')],
   );
+
+  useHealthSync(toast);
 
   const runScene = useCallback(
     (i: number) => {
       const sc = STORYBOARD[i];
-      if (state.demo.scenarioId !== 'hero' || !isDemo) dispatch({ type: 'loadScenario', id: 'hero' });
+      // scene 1 always starts from an untouched journey; later scenes keep what was done live (e.g. a mission)
+      if (i === 0 || state.demo.scenarioId !== 'hero' || !isDemo) dispatch({ type: 'loadScenario', id: 'hero' });
       setTimeout(() => {
         dispatch({ type: 'setViewDay', day: sc.day });
         go(sc.screen as Screen);
@@ -153,7 +175,7 @@ export default function App() {
     home: <Home />,
     routines: <Routines />,
     shield: <Shield />,
-    missions: <Missions />,
+    missions: <Missions key={`${journeyKey}:${day}`} />,
     pet: <Wardrobe />,
     insights: <Insights />,
     settings: <Settings />,
@@ -244,7 +266,7 @@ export default function App() {
           <button className="panel__close icon-btn" onClick={() => setPanelOpen(false)} aria-label="Close demo panel">
             ✕
           </button>
-          <TimeMachine onScene={runScene} presenter={presenter} />
+          <TimeMachine onScene={runScene} presenter={presenter} onLeave={() => setPanelOpen(false)} />
         </aside>
         <button className="panel-fab" onClick={() => setPanelOpen(true)}>
           ⏱ Time Machine

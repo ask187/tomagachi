@@ -8,7 +8,7 @@ A web page can't list the apps on a phone or block them, so the browser build of
 
 To block apps for real, wrap the web app in a thin native shell (for example Capacitor or a plain WKWebView / Android WebView). The shell then injects `window.HabitPetNative`. The web app detects it automatically (`src/platform/shieldBridge.ts`) and switches from **SIMULATED** to **ON-DEVICE**.
 
-> Status: the JavaScript side of the bridge is built. The native code below is a starting point. It has **not** been built or tested, and both platforms need extra permissions (see below).
+> Status: the iOS app is in `ios/` (Capacitor + `HabitPetNativePlugin.swift`). Setup is in [IOS_SETUP.md](IOS_SETUP.md). It has **not** been compiled or run yet. Android isn't built.
 
 ## Bridge contract
 

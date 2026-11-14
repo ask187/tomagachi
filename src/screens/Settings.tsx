@@ -4,6 +4,8 @@ import { useUI } from '../App';
 import { Badge, Toggle } from '../components/ui';
 import { PET_COLORS, petSwatch } from '../components/Pet';
 import { WEEKDAYS } from '../engine/config';
+import SpeciesPicker from '../components/SpeciesPicker';
+import { SPECIES } from '../engine/species';
 
 export default function Settings() {
   const { state, dispatch, journey, isDemo } = useStore();
@@ -34,6 +36,9 @@ export default function Settings() {
           Name
           <input value={p.petName} maxLength={16} onChange={(e) => dispatch({ type: 'profile', patch: { petName: e.target.value } })} />
         </label>
+        <div className="label">Companion</div>
+        <SpeciesPicker value={p.species ?? 'mochi'} color={p.petColor} onChange={(sp) => dispatch({ type: 'profile', patch: { species: sp, petColor: SPECIES[sp].defaultColor } })} />
+        <p className="tiny muted">Switching keeps all progress: stages, XP, streaks and outfits carry over to the new look.</p>
         <div className="swatches">
           {PET_COLORS.map((c) => (
             <button key={c} className={`swatch ${p.petColor === c ? 'on' : ''}`} style={{ background: petSwatch(c) }} onClick={() => dispatch({ type: 'profile', patch: { petColor: c } })} aria-label={c} />

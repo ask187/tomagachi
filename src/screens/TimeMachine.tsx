@@ -1,20 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../state/store';
 import { useUI } from '../App';
 import { SCENARIOS, STORYBOARD } from '../engine/scenarios';
 import { Badge } from '../components/ui';
 import { WEEKDAYS } from '../engine/config';
 import { fmt } from '../engine/insights';
+import { simulate } from '../engine/engine';
 import PetScene, { MOOD_TAG } from '../components/PetScene';
 import Pet from '../components/Pet';
 import type { Condition } from '../engine/types';
+import { SPECIES_LIST, formOf } from '../engine/species';
 
 const ORDER: Condition[] = ['thriving', 'stable', 'struggling', 'neglected', 'recovery'];
 
 const SCEN = SCENARIOS.map((f) => f());
+// untouched copies, to tell when the presenter has edited a journey
+const SCEN_FRESH: Record<string, { days: string; habits: string }> = Object.fromEntries(
+  SCENARIOS.map((f) => f()).map((s) => [s.id, { days: JSON.stringify(s.days), habits: JSON.stringify(s.habits) }]),
+);
 
 /** Demo Time Machine (spec §14) — hackathon-only control surface. */
-export default function TimeMachine({ onScene, presenter }: { onScene: (i: number) => void; presenter: number | null }) {
+export default function TimeMachine({ onScene, presenter, onLeave }: { onScene: (i: number) => void; presenter: number | null; onLeave?: () => void }) {
   const { state, dispatch, journey, snap, snaps, isDemo, day } = useStore();
   const ui = useUI();
   const [playing, setPlaying] = useState(false);
@@ -32,15 +38,23 @@ export default function TimeMachine({ onScene, presenter }: { onScene: (i: numbe
   }, [playing, state.viewDay, max, dispatch]);
 
   // the first day the journey reaches each mood, so the strip reads in story order
+  // the mood strip always describes the DEMO journey, even while the live pet is on screen
+  const demoSnaps = useMemo(() => (isDemo ? snaps : simulate(state.demo)), [isDemo, snaps, state.demo]);
+  const demoSpecies = state.demo.profile.species ?? 'mochi';
+  const pristine = useMemo(() => SCEN_FRESH[state.demo.scenarioId], [state.demo.scenarioId]);
+  const edited = !!pristine && (JSON.stringify(state.demo.days) !== pristine.days || JSON.stringify(state.demo.habits) !== pristine.habits);
   const moodDays = ORDER.map((c) => {
-    const first = snaps.find((x) => x.conditionState === c);
+    const first = demoSnaps.find((x) => x.conditionState === c);
     return first ? { c, snap: first } : null;
-  }).filter((x): x is { c: Condition; snap: (typeof snaps)[number] } => !!x);
+  }).filter((x): x is { c: Condition; snap: (typeof demoSnaps)[number] } => !!x);
 
-  const jump = (d: number, screen?: Parameters<typeof ui.go>[0]) => {
+  const jump = (d: number, screen?: Parameters<typeof ui.go>[0], leave = !!screen) => {
     if (!isDemo) dispatch({ type: 'setMode', mode: 'demo' });
     dispatch({ type: 'setViewDay', day: d });
     if (screen) ui.go(screen);
+    // buttons that jump to a moment close the phone-sized sheet so the main screen is visible;
+    // the slider and ◀ ▶ keep it open (the sheet has its own live preview)
+    if (leave) onLeave?.();
   };
 
   return (
@@ -63,13 +77,15 @@ export default function TimeMachine({ onScene, presenter }: { onScene: (i: numbe
         </div>
       </div>
 
-      {isDemo && moodDays.length > 1 && (
+      {!isDemo && <p className="tm__live-note">You're viewing your live pet. Any control below switches to the demo journey.</p>}
+
+      {moodDays.length > 1 && (
         <div className="tm__block">
           <div className="label">Jump to a mood</div>
           <div className="moods">
             {moodDays.map(({ c, snap: s }) => (
-              <button key={c} className={`mood ${snap.conditionState === c ? 'on' : ''}`} onClick={() => jump(s.day, 'home')} title={`Day ${s.day + 1}`}>
-                <Pet color={journey.profile.petColor} stage={s.stage} condition={c} branch={s.branch} still size={48} />
+              <button key={c} className={`mood ${isDemo && snap.conditionState === c ? 'on' : ''}`} onClick={() => jump(s.day, 'home')} title={`Day ${s.day + 1}`}>
+                <Pet color={state.demo.profile.petColor} species={demoSpecies} form={formOf(demoSpecies, s.stage, s.streak)} stage={s.stage} condition={c} branch={s.branch} still size={48} />
                 <small>{MOOD_TAG[c].label}</small>
                 <em>Day {s.day + 1}</em>
               </button>
@@ -94,7 +110,7 @@ export default function TimeMachine({ onScene, presenter }: { onScene: (i: numbe
         <div className="label">🎬 Presenter mode — 3-minute storyboard</div>
         <div className="tm__scenes">
           {STORYBOARD.map((s, i) => (
-            <button key={s.scene} className={`chip ${presenter === i ? 'on' : ''}`} onClick={() => onScene(i)}>
+            <button key={s.scene} className={`chip ${presenter === i ? 'on' : ''}`} onClick={() => { onScene(i); onLeave?.(); }}>
               {s.scene}. {s.title}
             </button>
           ))}
@@ -111,6 +127,29 @@ export default function TimeMachine({ onScene, presenter }: { onScene: (i: numbe
           ))}
         </select>
         <p className="tiny muted">{sc.blurb}</p>
+        {edited && (
+          <div className="tm__edited">
+            <span className="tiny">✏️ You changed this journey (missions, logs or goals). Reset it before a fresh demo.</span>
+            <button className="btn btn--sm btn--ghost" onClick={() => dispatch({ type: 'loadScenario', id: state.demo.scenarioId })}>
+              ↺ Reset journey
+            </button>
+          </div>
+        )}
+        <div className="label">Companion</div>
+        <div className="chips">
+          {SPECIES_LIST.map((sp) => (
+            <button
+              key={sp.id}
+              className={`chip ${(state.demo.profile.species ?? 'mochi') === sp.id ? 'on' : ''}`}
+              onClick={() => {
+                if (!isDemo) dispatch({ type: 'setMode', mode: 'demo' });
+                dispatch({ type: 'profile', patch: { species: sp.id, petColor: sp.defaultColor, petName: sp.defaultName } });
+              }}
+            >
+              {sp.icon} {sp.name}
+            </button>
+          ))}
+        </div>
 
         <div className="tm__scrub">
           <button className="icon-btn" onClick={() => jump(Math.max(0, state.viewDay - 1))} aria-label="Previous day">
@@ -125,13 +164,20 @@ export default function TimeMachine({ onScene, presenter }: { onScene: (i: numbe
           <b>
             Day {state.viewDay + 1} / {max + 1}
           </b>
-          <button className="btn btn--sm" onClick={() => (state.viewDay >= max ? (jump(0), setPlaying(true)) : setPlaying((p) => !p))}>
+          <button
+            className="btn btn--sm"
+            onClick={() => {
+              if (playing) return setPlaying(false);
+              jump(state.viewDay >= max ? 0 : state.viewDay, 'home', false);
+              setPlaying(true);
+            }}
+          >
             {playing ? '⏸ Pause' : '▶ Play journey'}
           </button>
         </div>
         <div className="tm__milestones">
           {sc.milestones.map((m) => (
-            <button key={m.day} className={`chip ${state.viewDay === m.day ? 'on' : ''}`} onClick={() => jump(m.day)}>
+            <button key={m.day} className={`chip ${state.viewDay === m.day ? 'on' : ''}`} onClick={() => jump(m.day, undefined, true)}>
               {m.label}
             </button>
           ))}

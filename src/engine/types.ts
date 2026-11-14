@@ -43,7 +43,7 @@ export interface Habit {
   step: number;
 }
 
-export type EntrySource = 'manual' | 'timer' | 'sensor' | 'photo' | 'demo' | 'simulated-sensor';
+export type EntrySource = 'manual' | 'timer' | 'sensor' | 'photo' | 'demo' | 'simulated-sensor' | 'health';
 
 export interface Entry {
   /** null = unknown (sync failure / no data) — never silently treated as 0 */
@@ -88,6 +88,8 @@ export type PetColor = 'violet' | 'mint' | 'peach' | 'sky';
 export interface Profile {
   petName: string;
   petColor: PetColor;
+  /** which companion (defaults to Mochi) */
+  species?: import('./species').Species;
   accountability: Accountability;
   shield: ShieldSettings;
   /** weekday of day 0 */

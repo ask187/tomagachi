@@ -6,6 +6,7 @@ import HabitEditor from '../components/HabitEditor';
 import { Badge, Modal } from '../components/ui';
 import { HABIT_TEMPLATES, habitFromTemplate } from '../engine/config';
 import { usePedometer } from '../components/usePedometer';
+import AppleHealthCard from '../components/AppleHealthCard';
 import type { Habit } from '../engine/types';
 
 export default function Routines() {
@@ -34,6 +35,8 @@ export default function Routines() {
           🤒 {log?.paused ? 'Paused (on)' : 'Sick / travel pause'}
         </button>
       </div>
+
+      <AppleHealthCard compact />
 
       {walk && (
         <div className="card sensor">
