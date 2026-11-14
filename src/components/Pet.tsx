@@ -28,7 +28,9 @@ interface Props {
   title?: string;
 }
 
-const EYE = '#2a2140';
+const EYE = '#1b1530';
+// bold ink outline gives the character a sticker-like, hand-inked look
+const INK = '#1b1530';
 
 export default function Pet({
   color,
@@ -95,8 +97,9 @@ export default function Pet({
               {/* tail */}
               {stage >= 2 && (
                 <g className="pet-tail" style={{ transformOrigin: '148px 160px' }}>
-                  <path d="M146 162 C 176 160 186 130 174 112" stroke={p.dark} strokeWidth="11" fill="none" strokeLinecap="round" />
-                  <circle cx="174" cy="110" r={stage >= 3 ? 9 : 7} fill={tipColor} />
+                  <path d="M146 162 C 176 160 186 130 174 112" stroke={INK} strokeWidth="18" fill="none" strokeLinecap="round" />
+                  <path d="M146 162 C 176 160 186 130 174 112" stroke={p.dark} strokeWidth="10" fill="none" strokeLinecap="round" />
+                  <circle cx="174" cy="110" r={stage >= 3 ? 9 : 7} fill={tipColor} stroke={INK} strokeWidth="3.5" />
                 </g>
               )}
 
@@ -104,12 +107,12 @@ export default function Pet({
               {stage >= 2 && (
                 <>
                   <g style={{ transformOrigin: '70px 72px', transform: `rotate(${-earTilt}deg)` }} className="ear-l">
-                    <path d={stage >= 3 ? 'M56 86 L44 22 L92 62 Z' : 'M58 84 L52 40 L88 64 Z'} fill={p.body} stroke={p.dark} strokeWidth="2" strokeLinejoin="round" />
+                    <path d={stage >= 3 ? 'M56 86 L44 22 L92 62 Z' : 'M58 84 L52 40 L88 64 Z'} fill={p.body} stroke={INK} strokeWidth="4" strokeLinejoin="round" />
                     <path d={stage >= 3 ? 'M60 76 L52 36 L80 62 Z' : 'M62 76 L58 50 L80 64 Z'} fill={p.belly} opacity="0.8" />
                     {stage >= 3 && <path d="M44 22 L40 12 M44 22 L50 13" stroke={tipColor} strokeWidth="3" strokeLinecap="round" />}
                   </g>
                   <g style={{ transformOrigin: '130px 72px', transform: `rotate(${earTilt}deg)` }} className="ear-r">
-                    <path d={stage >= 3 ? 'M144 86 L156 22 L108 62 Z' : 'M142 84 L148 40 L112 64 Z'} fill={p.body} stroke={p.dark} strokeWidth="2" strokeLinejoin="round" />
+                    <path d={stage >= 3 ? 'M144 86 L156 22 L108 62 Z' : 'M142 84 L148 40 L112 64 Z'} fill={p.body} stroke={INK} strokeWidth="4" strokeLinejoin="round" />
                     <path d={stage >= 3 ? 'M140 76 L148 36 L120 62 Z' : 'M138 76 L142 50 L120 64 Z'} fill={p.belly} opacity="0.8" />
                     {stage >= 3 && <path d="M156 22 L160 12 M156 22 L150 13" stroke={tipColor} strokeWidth="3" strokeLinecap="round" />}
                   </g>
@@ -118,24 +121,25 @@ export default function Pet({
 
               {/* arms (behind body edge) */}
               <g className="arm arm-l" style={{ transformOrigin: '50px 120px' }}>
-                <ellipse cx="44" cy="138" rx="10" ry="18" fill={p.body} stroke={p.dark} strokeWidth="2" />
+                <ellipse cx="44" cy="138" rx="10" ry="18" fill={p.body} stroke={INK} strokeWidth="4" />
               </g>
               <g className="arm arm-r" style={{ transformOrigin: '150px 120px' }}>
-                <ellipse cx="156" cy="138" rx="10" ry="18" fill={p.body} stroke={p.dark} strokeWidth="2" />
+                <ellipse cx="156" cy="138" rx="10" ry="18" fill={p.body} stroke={INK} strokeWidth="4" />
               </g>
 
               {/* feet */}
-              <ellipse cx="76" cy="178" rx="16" ry="9" fill={p.dark} />
-              <ellipse cx="124" cy="178" rx="16" ry="9" fill={p.dark} />
+              <ellipse cx="76" cy="178" rx="16" ry="9" fill={p.dark} stroke={INK} strokeWidth="4" />
+              <ellipse cx="124" cy="178" rx="16" ry="9" fill={p.dark} stroke={INK} strokeWidth="4" />
 
               {/* body */}
               <path
                 d="M100 56 C 142 56 160 90 160 126 C 160 162 134 180 100 180 C 66 180 40 162 40 126 C 40 90 58 56 100 56 Z"
                 fill={`url(#body-${color})`}
-                stroke={p.dark}
-                strokeWidth="2.5"
+                stroke={INK}
+                strokeWidth="4.5"
               />
-              <ellipse cx="100" cy="148" rx="34" ry="26" fill={p.belly} opacity="0.85" />
+              <ellipse cx="100" cy="148" rx="34" ry="26" fill={p.belly} opacity="0.9" />
+              <path d="M62 82 Q72 68 88 64" stroke="#fff" strokeWidth="5" fill="none" strokeLinecap="round" opacity="0.55" />
 
               {/* branch traits (Ascended+) */}
               {stage >= 3 && branch === 'athlete' && <path d="M104 132 L94 150 L102 150 L96 166 L112 144 L104 144 L110 132 Z" fill={gold} stroke="#d39b00" strokeWidth="1.5" />}

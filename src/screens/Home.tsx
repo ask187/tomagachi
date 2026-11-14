@@ -6,6 +6,21 @@ import { RULES, STAGES } from '../engine/config';
 import { nextStageAt } from '../engine/engine';
 import { fmt } from '../engine/insights';
 import HabitQuickRow from '../components/HabitQuickRow';
+import Doodles from '../components/Doodles';
+import WeekDots from '../components/WeekDots';
+
+const MOOD_LINE = {
+  thriving: 'Unstoppable today. Mildly insufferable.',
+  stable: "Let's make today count.",
+  struggling: 'A small win would really help.',
+  neglected: 'Things are getting messy in here.',
+  recovery: 'One tiny mission brings them back.',
+};
+
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+}
 
 const STATE_LABEL = {
   thriving: { label: 'Thriving', color: 'var(--good)', icon: '🌟' },
@@ -26,7 +41,21 @@ export default function Home() {
 
   return (
     <div className="screen home">
-      <PetScene />
+      <div className="hero">
+        <Doodles />
+        <div className="hero__top">
+          <div>
+            <small className="hero__hi">{greeting()} 👋</small>
+            <h1 className="hero__title">{journey.profile.petName}'s Day</h1>
+            <p className="hero__sub">{MOOD_LINE[snap.conditionState]}</p>
+          </div>
+          <div className="streak-badge" aria-label={`${snap.streak} day streak`}>
+            <b>🔥 {snap.streak}</b>
+            <small>day streak</small>
+          </div>
+        </div>
+        <PetScene />
+      </div>
 
       <div className="stats">
         <div className="stat">
@@ -115,6 +144,8 @@ export default function Home() {
         </button>
       )}
 
+      <WeekDots />
+
       <div className="section-head">
         <h3>Today's routines</h3>
         <button className="link" onClick={() => ui.go('routines')}>
@@ -128,7 +159,7 @@ export default function Home() {
       ) : scheduled.length === 0 ? (
         <div className="card muted small">Nothing scheduled today.</div>
       ) : (
-        <div className="list">
+        <div className="list list--card">
           {journey.habits.map((h, i) => (snap.habits[i]?.scheduled ? <HabitQuickRow key={h.id} habit={h} result={snap.habits[i]} /> : null))}
         </div>
       )}

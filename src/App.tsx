@@ -39,8 +39,8 @@ export const useUI = () => useContext(UI)!;
 
 const NAV: { id: Screen; icon: string; label: string }[] = [
   { id: 'home', icon: '🏠', label: 'Home' },
-  { id: 'routines', icon: '✅', label: 'Routines' },
   { id: 'shield', icon: '🛡️', label: 'Shield' },
+  { id: 'routines', icon: '+', label: 'Log' },
   { id: 'pet', icon: '✨', label: 'Evolve' },
   { id: 'insights', icon: '📊', label: 'Insights' },
 ];
@@ -214,7 +214,12 @@ export default function App() {
                 </main>
                 <nav className="tabbar">
                   {NAV.map((n) => (
-                    <button key={n.id} className={screen === n.id || (n.id === 'shield' && screen === 'missions') ? 'on' : ''} onClick={() => go(n.id)}>
+                    <button
+                      key={n.id}
+                      className={`${screen === n.id || (n.id === 'shield' && screen === 'missions') ? 'on' : ''} ${n.id === 'routines' ? 'tab-plus' : ''}`}
+                      onClick={() => go(n.id)}
+                      aria-label={n.id === 'routines' ? 'Log routines' : undefined}
+                    >
                       <span>{n.icon}</span>
                       <small>{n.label}</small>
                       {n.id === 'shield' && (snap.shield === 'active' || snap.shield === 'warning') && <i className={`dot dot--${snap.shield}`} />}

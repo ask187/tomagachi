@@ -24,13 +24,15 @@ export default function HabitQuickRow({ habit, result, detailed }: { habit: Habi
   const src = isDemo && !entry ? 'demo' : entry?.source;
 
   const log = (add: number) => {
-    dispatch({ type: 'log', habitId: habit.id, add, source: isDemo ? 'demo' : habit.category === 'steps' ? 'manual' : 'manual' });
+    dispatch({ type: 'log', habitId: habit.id, add, source: isDemo ? 'demo' : 'manual' });
     if (!done && (result.value ?? 0) + add >= result.target) ui.toast(`${habit.icon} ${habit.name} complete!`);
   };
 
   return (
     <div className={`habit ${done ? 'habit--done' : ''} ${result.unknown ? 'habit--unknown' : ''}`}>
-      <div className="habit__icon">{habit.icon}</div>
+      <div className="habit__icon" data-cat={habit.category}>
+        {habit.icon}
+      </div>
       <div className="habit__body">
         <div className="habit__top">
           <b>{habit.name}</b>

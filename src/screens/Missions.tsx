@@ -38,7 +38,7 @@ export default function Missions() {
         Pick any one. All are short, safe, and you can swap or skip. Each completion: +{RULES.missionConditionBoost} condition, +{RULES.xpMission} XP, forgives one miss
         {snap.shield === 'active' ? ', and unlocks your shielded apps.' : '.'}
       </p>
-      <div className="list">
+      <div className="list list--card">
         {options.map((m) => (
           <button key={m.id} className={`mission ${m.aiPick ? 'mission--ai' : ''}`} onClick={() => setActive(m)}>
             <span className="mission__icon">{m.icon}</span>
@@ -53,10 +53,11 @@ export default function Missions() {
                 {m.nonExercise && <Badge tone="good">no exercise needed</Badge>}
               </span>
             </span>
-            <span className="mission__credit">
-              +{m.credit}
-              <small>min</small>
+            <span className="mission__side">
+              <span className="xp-pill">+{RULES.xpMission} XP</span>
+              <span className="mission__credit">+{m.credit} min</span>
             </span>
+            <span className="chev" aria-hidden="true">›</span>
           </button>
         ))}
       </div>
