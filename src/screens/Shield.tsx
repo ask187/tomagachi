@@ -6,6 +6,7 @@ import { APP_CATALOG, PROTECTED_APPS, resolveApps, type ShieldApp } from '../eng
 import { deviceApps, getShieldBridge, realShieldSettings } from '../platform/shieldBridge';
 import { Badge, Modal, Segmented, Toggle, mmss } from '../components/ui';
 import AppPicker from '../components/AppPicker';
+import AppIcon from '../components/AppIcon';
 import { EmergencyRequestFlow, RecoveryContactCard } from '../components/Emergency';
 import type { Accountability } from '../engine/types';
 
@@ -97,10 +98,9 @@ export default function Shield() {
             const l = isLocked(a.id);
             return (
               <button key={a.id} className={`app ${l ? 'app--locked' : ''}`} onClick={() => (l ? setLocked(a) : setOpened(a))}>
-                <span className="app__icon" style={{ background: a.color }}>
-                  {a.icon}
+                <AppIcon id={a.id} icon={a.icon} color={a.color} className="app__icon">
                   {l && <em>🔒</em>}
-                </span>
+                </AppIcon>
                 <small>{a.name}</small>
                 {sel && <i className="app__sel" title="On your shield list" />}
               </button>
@@ -110,7 +110,7 @@ export default function Shield() {
         <div className="mockphone__dock">
           {PROTECTED_APPS.slice(0, 6).map((a) => (
             <button key={a.id} className="app" onClick={() => ui.toast(`${a.name} is essential — never shielded.`)}>
-              <span className="app__icon app__icon--ess">{a.icon}</span>
+              <AppIcon id={a.id} icon={a.icon} color="rgba(255,255,255,0.92)" className="app__icon app__icon--ess" />
               <small>{a.name.replace('Emergency ', '')}</small>
             </button>
           ))}
@@ -157,9 +157,7 @@ export default function Shield() {
           <div className="shield-list">
             {shielded.map((a) => (
               <span key={a.id} className="shield-app">
-                <span className="shield-app__icon" style={{ background: a.color }}>
-                  {a.icon}
-                </span>
+                <AppIcon id={a.id} icon={a.icon} color={a.color} className="shield-app__icon" />
                 {a.name}
                 <button
                   className="shield-app__x"
@@ -217,7 +215,7 @@ export default function Shield() {
         }}
       />
 
-      <Modal open={!!opened} onClose={() => setOpened(null)} title={opened ? `${opened.icon} ${opened.name}` : ''}>
+      <Modal open={!!opened} onClose={() => setOpened(null)} title={opened?.name ?? ''}>
         <div className="fakeapp">
           <div className="fakeapp__feed">
             {[1, 2, 3].map((i) => (
@@ -255,7 +253,7 @@ function LockedSheet({ app, onClose, onEmergency, onOverride }: { app: ShieldApp
     }
   }, [app]);
   return (
-    <Modal open={!!app} onClose={onClose} title={`${app?.icon} ${app?.name} is shielded`}>
+    <Modal open={!!app} onClose={onClose} title={`${app?.name} is shielded`}>
       <p className="small">
         {prof.petName} is sitting on this app. You missed {snap.recentMisses} recent routines — a tiny mission earns it back. <Badge tone="sim">simulated block</Badge>
       </p>

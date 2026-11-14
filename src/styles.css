@@ -3281,3 +3281,17 @@ textarea {
   padding: 6px 8px;
   margin-top: 6px;
 }
+
+/* real app logos (Simple Icons) */
+.app-logo svg {
+  width: 56%;
+  height: 56%;
+  display: block;
+}
+.app--locked .app-logo svg {
+  opacity: 0.55;
+}
+.app__icon--ess.app-logo svg {
+  width: 60%;
+  height: 60%;
+}

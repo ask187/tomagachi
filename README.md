@@ -46,6 +46,10 @@ To try it as a real user, choose **Hatch my pet**. Onboarding walks through the 
 | Recovery contact & emergency codes | ✅ Real logic (validation, limits, expiry, codes tied to each request). 🟨 The contact's approval screen runs on the same device in the demo |
 | "Simulate +1.5k steps", "Simulate sync failure", time jumps, Time Machine scenarios, friends | 🟨 Demo data, labelled in the UI |
 
+## App logos
+
+The Shield screen shows real app logos from [Simple Icons](https://simpleicons.org) (CC0). The logos remain trademarks of their owners and only identify the apps. Apps the library doesn't include show an emoji tile instead. In the iPhone app, iOS draws apps picked from the phone with their real icons.
+
 ## Choose your companion
 
 Pick a pet during onboarding, in Settings, or in the Time Machine panel. Progress carries over if you switch.
